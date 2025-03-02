@@ -13,10 +13,10 @@ for this, we should not use any loop at MPU scope, but at APP scope.
 
 ## Operations
 
-* Addition of matrices
-* Subtraction of matrices
+* [x] Addition of matrices
+* [x] Subtraction of matrices
 * Multiplication of matrices
-* Multiplication of a matrix by integer
+* [x] Multiplication of a matrix by integer
 * Determinant
 * Matrix transposition
-* Opposite matrix
+* [x] Opposite matrix

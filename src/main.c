@@ -80,7 +80,7 @@ void print_imul()
     };
 
     puts("===================================");
-    puts("sub");
+    puts("imul");
     print_matrix(x);
     puts("");
     printf("%d", factor);

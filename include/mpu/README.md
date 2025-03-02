@@ -18,5 +18,5 @@ for this, we should not use any loop at MPU scope, but at APP scope.
 * [ ] Multiplication of matrices
 * [x] Multiplication of a matrix by integer
 * [ ] Determinant
-* [ ] Matrix transposition
+* [x] Matrix transposition
 * [x] Opposite matrix

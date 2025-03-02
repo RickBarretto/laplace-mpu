@@ -91,11 +91,35 @@ void print_imul()
     puts("===================================");
 }
 
+void print_opposite()
+{
+    Matrix out;
+    Matrix x = {
+        .data = {
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+        },
+        .length = 4
+    };
+
+    puts("===================================");
+    puts("opposite");
+    print_matrix(x);
+    puts("");
+    
+    mpu_opposite(&x, &out);
+    print_matrix(out);
+    puts("===================================");
+}
+
 ExitCode main(void) {
 
     print_add();
     print_sub();
     print_imul();
+    print_opposite();
 
     return OkCode;
 }

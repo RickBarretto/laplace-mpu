@@ -2,9 +2,11 @@
 
 #include <app/app.h>
 
-ExitCode main(void) {
+void print_add()
+{
+    Matrix x, y, out;
 
-    Matrix x = {
+    x = (Matrix) {
         .data = {
             {10, 20, 30, 40},
             {10, 20, 30, 40},
@@ -13,18 +15,60 @@ ExitCode main(void) {
         },
         .length = 4
     };
-    
-    Matrix y = x;
-    Matrix out;
+    y = x;
 
+    puts("===================================");
     puts("add");
     print_matrix(x);
     puts("");
     print_matrix(y);
     puts("");
-
+    
     mpu_add(&x, &y, &out);
     print_matrix(out);
+    puts("===================================");
+}
+
+void print_sub()
+{
+    Matrix out;
+
+    Matrix x = {
+        .data = {
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+        },
+        .length = 4
+    };
+    
+    Matrix y = {
+        .data = {
+            {10, 20, 30, 40},
+            {10, 20, 30, 40},
+            {10, 20, 30, 40},
+            {10, 20, 30, 40},
+        },
+        .length = 4
+    };
+
+    puts("===================================");
+    puts("sub");
+    print_matrix(x);
+    puts("");
+    print_matrix(y);
+    puts("");
+    
+    mpu_sub(&x, &y, &out);
+    print_matrix(out);
+    puts("===================================");
+}
+
+ExitCode main(void) {
+
+    print_add();
+    print_sub();
 
     return OkCode;
 }

@@ -8,4 +8,7 @@ typedef struct {
     i8 data[5][5];
 } Matrix;
 
+void mpu_add(Matrix *x, Matrix *y, Matrix *out);
+void mpu_sub(Matrix *x, Matrix *y, Matrix *out);
+
 #endif

@@ -1,4 +1,7 @@
 {
     "files.associations": {
+        "app.h": "c",
+        "matrix.h": "c",
+        "common.h": "c"
     },
 }

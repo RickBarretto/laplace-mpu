@@ -5,7 +5,7 @@
 
 typedef struct {
     u8 length;
-    u8 data[5][5];
+    i8 data[5][5];
 } Matrix;
 
 #endif

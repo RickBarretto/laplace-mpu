@@ -4,7 +4,7 @@
 
 ExitCode main(void) {
 
-    Matrix matrix = {
+    Matrix x = {
         .data = {
             {10, 20, 30, 40},
             {10, 20, 30, 40},
@@ -13,8 +13,18 @@ ExitCode main(void) {
         },
         .length = 4
     };
-
-    print_matrix(matrix);
     
+    Matrix y = x;
+    Matrix out;
+
+    puts("add");
+    print_matrix(x);
+    puts("");
+    print_matrix(y);
+    puts("");
+
+    mpu_add(&x, &y, &out);
+    print_matrix(out);
+
     return OkCode;
 }

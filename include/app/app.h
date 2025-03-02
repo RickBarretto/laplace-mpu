@@ -4,6 +4,7 @@
 // Import Matrix Processor Unit
 #include <mpu/common.h>
 #include <mpu/matrix.h>
+#include <mpu/add.h>
 
 // Import App Functions
 #include <app/print_matrix.h>

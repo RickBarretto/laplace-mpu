@@ -65,10 +65,37 @@ void print_sub()
     puts("===================================");
 }
 
+void print_imul()
+{
+    i8 factor = 3;
+    Matrix out;
+    Matrix x = {
+        .data = {
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+            {20, 40, 60, 80},
+        },
+        .length = 4
+    };
+
+    puts("===================================");
+    puts("sub");
+    print_matrix(x);
+    puts("");
+    printf("%d", factor);
+    puts("");
+    
+    mpu_imul(&x, factor, &out);
+    print_matrix(out);
+    puts("===================================");
+}
+
 ExitCode main(void) {
 
     print_add();
     print_sub();
+    print_imul();
 
     return OkCode;
 }

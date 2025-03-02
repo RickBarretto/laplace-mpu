@@ -3,7 +3,7 @@
 
 #include <app/print_matrix.h>
 
-void print_row(u8 row[5], u8 length)
+void print_row(i8 row[5], u8 length)
 {
     for (u8 col = 0; col < length; col++)
     {

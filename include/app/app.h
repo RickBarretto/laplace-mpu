@@ -6,7 +6,7 @@
 #include <mpu/matrix.h>
 
 // Import App Functions
-#include <mpu/print_matrix.h>
+#include <app/print_matrix.h>
 
 typedef int ExitCode;
 

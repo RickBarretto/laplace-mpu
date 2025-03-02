@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <mpu/print_matrix.h>
+#include <app/print_matrix.h>
 
 void print_row(u8 row[5], u8 length)
 {

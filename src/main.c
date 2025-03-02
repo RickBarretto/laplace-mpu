@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <mpu/app.h>
+#include <app/app.h>
 
 ExitCode main(void) {
 

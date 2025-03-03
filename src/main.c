@@ -139,23 +139,47 @@ void print_transpose()
 
 void print_det()
 {
-    i16 out;
-    Matrix x = {
-        .data = {
-            {5, 4},
-            {2, 3},
-        },
-        .length = 2
-    };
+    {
+        i16 out;
+        Matrix x = {
+            .data = {
+                {2, 1, 3},
+                {1, 1, 1},
+                {0, 1, 4},
+            },
+            .length = 3
+        };
 
-    puts("===================================");
-    puts("det");
-    print_matrix(x);
-    puts("");
+        puts("===================================");
+        puts("det");
+        print_matrix(x);
+        puts("");
+        
+        mpu_det(&x, &out);
+        printf("%d\n", out);
+        puts("===================================");
+    }
+
+    {
+        i16 out;
+        Matrix x = {
+            .data = {
+                {5, 4},
+                {2, 3},
+            },
+            .length = 2
+        };
+
+        puts("===================================");
+        puts("det");
+        print_matrix(x);
+        puts("");
+        
+        mpu_det(&x, &out);
+        printf("%d\n", out);
+        puts("===================================");
+    }
     
-    mpu_det(&x, &out);
-    printf("%d\n", out);
-    puts("===================================");
 }
 
 ExitCode main(void) {

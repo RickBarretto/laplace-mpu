@@ -17,6 +17,6 @@ for this, we should not use any loop at MPU scope, but at APP scope.
 * [x] Subtraction of matrices
 * [ ] Multiplication of matrices
 * [x] Multiplication of a matrix by integer
-* [ ] Determinant
+* [x] Determinant
 * [x] Matrix transposition
 * [x] Opposite matrix

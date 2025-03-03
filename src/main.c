@@ -65,6 +65,42 @@ void print_sub()
     puts("===================================");
 }
 
+void print_mul()
+{
+    Matrix out;
+
+    Matrix x = {
+        .data = {
+            {2, 1, 3, 5},
+            {2, 1, 3, 5},
+            {2, 1, 3, 5},
+            {2, 1, 3, 5},
+        },
+        .length = 4
+    };
+    
+    Matrix y = {
+        .data = {
+            {1, 2, 2, 1},
+            {1, 2, 2, 1},
+            {1, 2, 2, 2},
+            {1, 2, 2, 1},
+        },
+        .length = 4
+    };
+
+    puts("===================================");
+    puts("mul");
+    print_matrix(x);
+    puts("");
+    print_matrix(y);
+    puts("");
+    
+    mpu_mul(&x, &y, &out);
+    print_matrix(out);
+    puts("===================================");
+}
+
 void print_imul()
 {
     i8 factor = 3;
@@ -186,6 +222,7 @@ ExitCode main(void) {
 
     print_add();
     print_sub();
+    print_mul();
     print_imul();
     print_opposite();
     print_transpose();

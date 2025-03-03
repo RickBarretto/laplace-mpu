@@ -122,13 +122,7 @@ void sums_of(i16 products[2][5], i16 *det)
     diff[3] = products[0][3] - products[1][3];
     diff[4] = products[0][4] - products[1][4];
 
-    i16 sum[3];
-
-    sum[0] = diff[0] + diff[1];
-    sum[1] = diff[2] + diff[3];
-    sum[2] = diff[4];
-
-    *det = sum[0] + sum[1] + sum[2];
+    *det = diff[0] + diff[1] + diff[2] + diff[3] + diff[4];
 
 }
 

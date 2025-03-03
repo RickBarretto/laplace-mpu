@@ -13,5 +13,6 @@ void mpu_sub(Matrix *x, Matrix *y, Matrix *out);
 void mpu_imul(Matrix *x, i8 factor, Matrix *out);
 void mpu_opposite(Matrix *x, Matrix *out);
 void mpu_transpose(Matrix *x, Matrix *out);
+void mpu_det(Matrix *x, i16 *out);
 
 #endif

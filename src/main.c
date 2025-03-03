@@ -137,6 +137,27 @@ void print_transpose()
     puts("===================================");
 }
 
+void print_det()
+{
+    i16 out;
+    Matrix x = {
+        .data = {
+            {5, 4},
+            {2, 3},
+        },
+        .length = 2
+    };
+
+    puts("===================================");
+    puts("det");
+    print_matrix(x);
+    puts("");
+    
+    mpu_det(&x, &out);
+    printf("%d\n", out);
+    puts("===================================");
+}
+
 ExitCode main(void) {
 
     print_add();
@@ -144,6 +165,7 @@ ExitCode main(void) {
     print_imul();
     print_opposite();
     print_transpose();
+    print_det();
 
     return OkCode;
 }

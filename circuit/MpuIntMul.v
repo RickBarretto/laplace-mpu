@@ -21,7 +21,7 @@ module IntegerMultiplication (
     input  [_8_BITS]   factor,
     output [_8_BITS]      out[4:0][4:0]
 );
-    `define add_at(i, j) out[i][j] = matrix[i][j] * factor
+    `define add_at(i, j) assign out[i][j] = matrix[i][j] * factor
 
     add_at(0, 0);
     add_at(0, 1);

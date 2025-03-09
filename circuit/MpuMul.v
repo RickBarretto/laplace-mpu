@@ -35,7 +35,7 @@ module Multiply (
     `define right(i, j) at(matrix_b, i, j)
 
     `define product_at(i, j)        \
-        at(result, i, j) =          \
+        assign at(result, i, j) =   \
         left(i, 0) * right(0, j)    \
         + left(i, 1) * right(1, j)  \
         + left(i, 2) * right(2, j)  \

@@ -18,7 +18,7 @@ module Transpose(
     output [_8_BITS] result[4:0][4:0]
 );
 
-    `define transpose_at(i, j) result[i][j] = matrix[j][i];
+    `define transpose_at(i, j) assign result[i][j] = matrix[j][i];
     `define transpose_row(i) \
         transpose_at(i, 0)   \
         transpose_at(i, 1)   \

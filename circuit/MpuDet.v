@@ -148,7 +148,7 @@ module SumOperation(
     output [_16_BITS] sum
 );
 
-    `define difference(i) diff[(i)] = products[0][(i)] - products[1][(i)]
+    `define difference(i) assign diff[(i)] = products[0][(i)] - products[1][(i)]
 
     wire [_16_BITS] diff[4:0];
 
@@ -158,6 +158,6 @@ module SumOperation(
     difference(3);
     difference(4);
 
-    sum = diff[0] + diff[1] + diff[2] + diff[3] + diff[4];
+    assign sum = diff[0] + diff[1] + diff[2] + diff[3] + diff[4];
 
 endmodule

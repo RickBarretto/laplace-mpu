@@ -21,7 +21,7 @@ module AdditionOperation (
     input  [_8_BITS]   y[4:0][4:0],
     output [_8_BITS] out[4:0][4:0]
 );
-    `define add_at(i, j) out[i][j] = x[i][j] + y[i][j]
+    `define add_at(i, j) assign out[i][j] = x[i][j] + y[i][j]
 
     add_at(0, 0);
     add_at(0, 1);

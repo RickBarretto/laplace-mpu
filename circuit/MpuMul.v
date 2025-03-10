@@ -34,26 +34,26 @@ module Multiply (
     `define left(i, j) at(matrix_a, i, j)
     `define right(i, j) at(matrix_b, i, j)
 
-    `define product_at(i, j)        \
-        assign at(result, i, j) =   \
-        left(i, 0) * right(0, j)    \
-        + left(i, 1) * right(1, j)  \
-        + left(i, 2) * right(2, j)  \
-        + left(i, 3) * right(3, j)  \
-        + left(i, 4) * right(4, j);
+    `define product_at(i, j)            \
+        assign `at(result, i, j) =      \
+        `left(i, 0) * `right(0, j)      \
+        + `left(i, 1) * `right(1, j)    \
+        + `left(i, 2) * `right(2, j)    \
+        + `left(i, 3) * `right(3, j)    \
+        + `left(i, 4) * `right(4, j);
 
     `define row_product(i)  \
-        product_at(i , 0);  \
-        product_at(i , 1);  \
-        product_at(i , 2);  \
-        product_at(i , 3);  \
-        product_at(i , 4);
+        `product_at(i , 0); \
+        `product_at(i , 1); \
+        `product_at(i , 2); \
+        `product_at(i , 3); \
+        `product_at(i , 4);
 
-    row_product(0);
-    row_product(1);
-    row_product(2);
-    row_product(3);
-    row_product(4);
+    `row_product(0)
+    `row_product(1)
+    `row_product(2)
+    `row_product(3)
+    `row_product(4)
 
 endmodule
 

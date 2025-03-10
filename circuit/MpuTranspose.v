@@ -19,17 +19,17 @@ module Transpose(
 );
 
     `define transpose_at(i, j) assign result[i][j] = matrix[j][i];
-    `define transpose_row(i) \
-        transpose_at(i, 0)   \
-        transpose_at(i, 1)   \
-        transpose_at(i, 2)   \
-        transpose_at(i, 3)   \
-        transpose_at(i, 4)
+    `define transpose_row(i)    \
+        `transpose_at(i, 0);     \
+        `transpose_at(i, 1);     \
+        `transpose_at(i, 2);     \
+        `transpose_at(i, 3);     \
+        `transpose_at(i, 4);
 
-    transpose_row(0);
-    transpose_row(1);
-    transpose_row(2);
-    transpose_row(3);
-    transpose_row(4);
+    `transpose_row(0)
+    `transpose_row(1)
+    `transpose_row(2)
+    `transpose_row(3)
+    `transpose_row(4)
 
 endmodule

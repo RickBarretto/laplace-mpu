@@ -21,36 +21,36 @@ module IntegerMultiplication (
     input  [_8_BITS]   factor,
     output [_8_BITS]      out[4:0][4:0]
 );
-    `define add_at(i, j) assign out[i][j] = matrix[i][j] * factor
+    `define mul_at(i, j) assign out[i][j] = matrix[i][j] * factor;
 
-    add_at(0, 0);
-    add_at(0, 1);
-    add_at(0, 2);
-    add_at(0, 3);
-    add_at(0, 4);
+    `mul_at(0, 0)
+    `mul_at(0, 1)
+    `mul_at(0, 2)
+    `mul_at(0, 3)
+    `mul_at(0, 4)
 
-    add_at(1, 0);
-    add_at(1, 1);
-    add_at(1, 2);
-    add_at(1, 3);
-    add_at(1, 4);
+    `mul_at(1, 0)
+    `mul_at(1, 1)
+    `mul_at(1, 2)
+    `mul_at(1, 3)
+    `mul_at(1, 4)
 
-    add_at(2, 0);
-    add_at(2, 1);
-    add_at(2, 2);
-    add_at(2, 3);
-    add_at(2, 4);
+    `mul_at(2, 0)
+    `mul_at(2, 1)
+    `mul_at(2, 2)
+    `mul_at(2, 3)
+    `mul_at(2, 4)
 
-    add_at(3, 0);
-    add_at(3, 1);
-    add_at(3, 2);
-    add_at(3, 3);
-    add_at(3, 4);
+    `mul_at(3, 0)
+    `mul_at(3, 1)
+    `mul_at(3, 2)
+    `mul_at(3, 3)
+    `mul_at(3, 4)
 
-    add_at(4, 0);
-    add_at(4, 1);
-    add_at(4, 2);
-    add_at(4, 3);
-    add_at(4, 4);
+    `mul_at(4, 0)
+    `mul_at(4, 1)
+    `mul_at(4, 2)
+    `mul_at(4, 3)
+    `mul_at(4, 4)
 
 endmodule

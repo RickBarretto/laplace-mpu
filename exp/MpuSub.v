@@ -9,7 +9,7 @@ module MpuSub (
 );
 
     always @* begin
-        result = matrix_a - matrix_b; // Add matrix_a and matrix_b element-wise
+        result = matrix_a - matrix_b;
     end
 
 endmodule

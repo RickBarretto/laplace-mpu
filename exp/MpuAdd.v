@@ -1,10 +1,10 @@
-`define i8(amount) (8 * amount)    // 8 bits per element
+`define i8arr(amount) (8 * amount)    // 8 bits per element
 `define at(i, j) (8 * (i + 5*j))  // Access each 8-bit element in the 5x5 matrix
 
 module MpuAdd (
-    input  [`i8(25)-1:0] matrix_a,  // 5x5 matrix A flattened (each element is 8-bit)
-    input  [`i8(25)-1:0] matrix_b,  // 5x5 matrix B flattened (each element is 8-bit)
-    output reg [`i8(25)-1:0] result // 5x5 result matrix flattened (each element is 8-bit)
+    input  [`i8arr(25)-1:0] matrix_a,  // 5x5 matrix A flattened (each element is 8-bit)
+    input  [`i8arr(25)-1:0] matrix_b,  // 5x5 matrix B flattened (each element is 8-bit)
+    output reg [`i8arr(25)-1:0] result // 5x5 result matrix flattened (each element is 8-bit)
 );
 
     always @* begin
@@ -16,9 +16,9 @@ endmodule
 module test_MpuAdd;
 
     // Declare the input and output arrays (flattened 1D arrays for 5x5 matrices)
-    reg  [`i8(25)-1:0] matrix_a;    // 5x5 matrix A (flattened 1D array)
-    reg  [`i8(25)-1:0] matrix_b;    // 5x5 matrix B (flattened 1D array)
-    wire [`i8(25)-1:0] result;      // 5x5 result matrix (flattened 1D array)
+    reg  [`i8arr(25)-1:0] matrix_a;    // 5x5 matrix A (flattened 1D array)
+    reg  [`i8arr(25)-1:0] matrix_b;    // 5x5 matrix B (flattened 1D array)
+    wire [`i8arr(25)-1:0] result;      // 5x5 result matrix (flattened 1D array)
 
     // Instantiate the MpuAdd module
     MpuAdd uut (
@@ -62,7 +62,7 @@ module test_MpuAdd;
 
     // Task to display a flattened 5x5 matrix (accessing each 8-bit element)
     task display_matrix;
-        input [`i8(25)-1:0] matrix;  // Flattened 1D matrix
+        input [`i8arr(25)-1:0] matrix;  // Flattened 1D matrix
         integer i, j;
         begin
             for (i = 0; i < 5; i = i + 1) begin

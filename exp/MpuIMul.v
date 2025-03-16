@@ -1,11 +1,12 @@
 `define i8(x) 8'd``x                /// defined a 8-bit integer
-`define i8arr(amount) (8 * amount)  /// N-array of 8-bits integer
+`define MATRIX_5x5 (8*25-1):(0)     /// 5x5 matrix flatted array indexes
+`define INTEGER_8 7:0               /// 8-bits integer indexes
 `define at(i, j) (8 * (i + 5*j))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuIMul (
-    input      [`i8arr(25)-1:0] matrix_a,   // 5x5 8-bits matrix
-    input      [ `i8arr(1)-1:0] factor,     // 8-bits integer
-    output reg [`i8arr(25)-1:0] result      // 5x5 8-bits matrix
+    input      [`MATRIX_5x5] matrix_a,  // 5x5 8-bits matrix
+    input      [`INTEGER_8 ] factor,    // 8-bits integer
+    output reg [`MATRIX_5x5] result     // 5x5 8-bits matrix
 );
 
     always @* begin
@@ -16,9 +17,9 @@ endmodule
 
 module test_MpuIMul;
 
-    reg  [`i8arr(25)-1:0] matrix_a;
-    reg  [ `i8arr(1)-1:0] factor;
-    wire [`i8arr(25)-1:0] result;
+    reg  [`MATRIX_5x5] matrix_a;
+    reg  [`INTEGER_8 ] factor;
+    wire [`MATRIX_5x5] result;
 
     MpuIMul imul_operation (
         .matrix_a(matrix_a),
@@ -48,7 +49,7 @@ module test_MpuIMul;
     end
 
     task display_matrix;
-        input [`i8arr(25)-1:0] matrix;
+        input [`MATRIX_5x5] matrix;
         integer i;
         begin
             for (i = 0; i < 5; i = i + 1) begin

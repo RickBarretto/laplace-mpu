@@ -1,11 +1,11 @@
 `define i8(x) 8'd``x                /// defined a 8-bit integer
-`define i8arr(amount) (8 * amount)  /// N-array of 8-bits integer
+`define MATRIX_5x5 (8*25-1):(0)     /// defines a 5x5 matrix flatted array indexes
 `define at(i, j) (8 * (i + 5*j))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuSub (
-    input      [`i8arr(25)-1:0] matrix_a,   // 5x5 8-bits matrix
-    input      [`i8arr(25)-1:0] matrix_b,   // 5x5 8-bits matrix
-    output reg [`i8arr(25)-1:0] result      // 5x5 8-bits matrix
+    input      [`MATRIX_5x5] matrix_a,  // 5x5 8-bits matrix
+    input      [`MATRIX_5x5] matrix_b,  // 5x5 8-bits matrix
+    output reg [`MATRIX_5x5] result     // 5x5 8-bits matrix
 );
 
     always @* begin
@@ -16,9 +16,9 @@ endmodule
 
 module test_MpuSub;
 
-    reg  [`i8arr(25)-1:0] matrix_a;
-    reg  [`i8arr(25)-1:0] matrix_b;
-    wire [`i8arr(25)-1:0] result;
+    reg  [`MATRIX_5x5] matrix_a;
+    reg  [`MATRIX_5x5] matrix_b;
+    wire [`MATRIX_5x5] result;
 
     MpuSub sub_operation (
         .matrix_a(matrix_a),
@@ -52,7 +52,7 @@ module test_MpuSub;
     end
 
     task display_matrix;
-        input [`i8arr(25)-1:0] matrix;
+        input [`MATRIX_5x5] matrix;
         integer i;
         begin
             for (i = 0; i < 5; i = i + 1) begin

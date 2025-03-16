@@ -1,3 +1,4 @@
+`define i8(x) 8'd``x
 `define i8arr(amount) (8 * amount)    // 8 bits per element
 `define at(i, j) (8 * (i + 5*j))  // Access each 8-bit element in the 5x5 matrix
 
@@ -31,17 +32,17 @@ module test_MpuAdd;
     initial begin
 
         // Manually set values for matrix_a and matrix_b (use any 8-bit values)
-        matrix_a = {8'd1, 8'd2, 8'd3, 8'd4, 8'd5, 
-                    8'd6, 8'd7, 8'd8, 8'd9, 8'd10, 
-                    8'd11, 8'd12, 8'd13, 8'd14, 8'd15, 
-                    8'd16, 8'd17, 8'd18, 8'd19, 8'd20, 
-                    8'd21, 8'd22, 8'd23, 8'd24, 8'd25};  // Initialize matrix_a
+        matrix_a = {`i8(1),  `i8(2),  `i8(3),  `i8(4),  `i8(5), 
+                    `i8(6),  `i8(7),  `i8(8),  `i8(9),  `i8(10), 
+                    `i8(11), `i8(12), `i8(13), `i8(14), `i8(15), 
+                    `i8(16), `i8(17), `i8(18), `i8(19), `i8(20), 
+                    `i8(21), `i8(22), `i8(23), `i8(24), `i8(25)};  // Initialize matrix_a
 
-        matrix_b = {8'd25, 8'd24, 8'd23, 8'd22, 8'd21, 
-                    8'd20, 8'd19, 8'd18, 8'd17, 8'd16, 
-                    8'd15, 8'd14, 8'd13, 8'd12, 8'd11, 
-                    8'd10, 8'd9, 8'd8, 8'd7, 8'd6, 
-                    8'd5, 8'd4, 8'd3, 8'd2, 8'd1};  // Initialize matrix_b
+        matrix_b = {`i8(25), `i8(24), `i8(23), `i8(22), `i8(21), 
+                    `i8(20), `i8(19), `i8(18), `i8(17), `i8(16), 
+                    `i8(15), `i8(14), `i8(13), `i8(12), `i8(11), 
+                    `i8(10), `i8(9),  `i8(8),  `i8(7),  `i8(6), 
+                    `i8(5),  `i8(4),  `i8(3),  `i8(2),  `i8(1)};  // Initialize matrix_b
 
         // Display the matrices before the addition
         $display("Matrix A (matrix_a):");

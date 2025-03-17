@@ -1,7 +1,8 @@
 `define i8(x) 8'd``x
 `define INTEGER_8 7:0
-`define MATRIX8_5x5 (8*25-1):(0)
-`define MATRIX16_5x5 (16*25-1):(0)
+`define MATRIX8_5x5 0:(8*25-1)
+`define MATRIX16_5x5 0:(16*25-1)
+`define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuMul (
     input      [`MATRIX8_5x5] matrix_a, // Flattened 5x5 matrix (each element 8 bits)
@@ -17,8 +18,8 @@ module MpuMul (
         // Unpack flattened input matrices (Correct indexing order)
         for (i = 0; i < 5; i = i + 1) begin
             for (j = 0; j < 5; j = j + 1) begin
-                a_mat[i][j] = matrix_a[(j*5 + i)*8 +: 8];
-                b_mat[i][j] = matrix_b[(j*5 + i)*8 +: 8];
+                a_mat[i][j] = matrix_a[`at(i, j) +: 8];
+                b_mat[i][j] = matrix_b[`at(i, j) +: 8];
                 temp_result[i][j] = 0;
             end
         end
@@ -80,7 +81,7 @@ module test_MpuMul;
         begin
             for (i = 0; i < size; i = i + 1) begin
                 for (j = 0; j < size; j = j + 1) begin
-                    $write("%4d", matrix[(j*5 + i)*8 +: 8]);
+                    $write("%4d", matrix[`at(i, j) +: 8]);
                 end
                 $write("\n");
             end
@@ -94,7 +95,7 @@ module test_MpuMul;
         begin
             for (i = 0; i < size; i = i + 1) begin
                 for (j = 0; j < size; j = j + 1) begin
-                    $write("%4d", matrix[(j*5 + i)*16 +: 16]);
+                    $write("%4d", matrix[`at(i, j)*2 +: 16]);
                 end
                 $write("\n");
             end

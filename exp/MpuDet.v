@@ -1,7 +1,7 @@
-`define i8(x) 8'd``x                 // 8-bit integer
-`define MATRIX_5x5  (8*25-1):0       // 5x5 matrix's indexes
-`define INTEGER_8   7:0              // 8-bit integer indexes
-`define at(i, j)    (8 * (i + 5*j))  // Access each 8-bit element in the 5x5 matrix
+`define i8(x) 8'd``x                        // 8-bit integer
+`define MATRIX_5x5  0:(8*25-1)              // 5x5 matrix's indexes
+`define INTEGER_8   7:0                     // 8-bit integer indexes
+`define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuDet (
     input      [`MATRIX_5x5] matrix,  // 5x5 8-bit matrix

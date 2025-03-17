@@ -1,6 +1,6 @@
 `define i8(x) 8'd``x                /// defined a 8-bit integer
-`define MATRIX_5x5 (8*25-1):(0)     /// defines a 5x5 matrix flatted array indexes
-`define at(i, j) (8 * (i + 5*j))    /// Access each 8-bit element in the 5x5 matrix
+`define MATRIX_5x5 (0):(8*25-1)     /// defines a 5x5 matrix flatted array indexes
+`define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuTranspose (
     input      [`MATRIX_5x5] matrix,    // 5x5 8-bits matrix

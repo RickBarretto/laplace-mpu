@@ -9,14 +9,16 @@ module MpuIMul (
     output reg signed [`MATRIX_5x5] result     // 5x5 8-bits matrix
 );
 
-    integer col, row;
-    always @(*) begin
-        for (col = 0; col < 5; col = col + 1) begin
-            for (row = 0; row < 5; row = row + 1) begin
-                result[`at(col, row) +: 8] = factor * matrix_a[`at(col, row) +: 8];
+    genvar col, row;
+    generate
+        for (col = 0; col < 5; col = col + 1) begin : col_loop
+            for (row = 0; row < 5; row = row + 1) begin : row_loop
+                always @(*) begin
+                    result[`at(col, row) +: 8] = factor * matrix_a[`at(col, row) +: 8];
+                end
             end
         end
-    end
+    endgenerate
 
 endmodule
 

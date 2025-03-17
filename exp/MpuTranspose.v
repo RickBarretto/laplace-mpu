@@ -3,27 +3,21 @@
 `define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuTranspose (
-    input      signed [`MATRIX_5x5] matrix,    // 5x5 8-bits matrix
-    output reg signed [`MATRIX_5x5] result     // 5x5 8-bits matrix
+    input  wire signed [`MATRIX_5x5] matrix,  // 5x5 8-bit matrix
+    output wire signed [`MATRIX_5x5] result   // 5x5 8-bit matrix
 );
 
-    `define transpose_at(i, j) result[`at(i, j) +: 8] = matrix[`at(j, i) +: 8];
-    `define transpose_row(i)    \
-        `transpose_at(i, 0);    \
-        `transpose_at(i, 1);    \
-        `transpose_at(i, 2);    \
-        `transpose_at(i, 3);    \
-        `transpose_at(i, 4);
-
-    always @* begin
-        `transpose_row(0)
-        `transpose_row(1)
-        `transpose_row(2)
-        `transpose_row(3)
-        `transpose_row(4)
-    end
+    genvar i, j;
+    generate
+        for (i = 0; i < 5; i = i + 1) begin : row_loop
+            for (j = 0; j < 5; j = j + 1) begin : col_loop
+                assign result[`at(i, j) +: 8] = matrix[`at(j, i) +: 8];
+            end
+        end
+    endgenerate
 
 endmodule
+
 
 module test_MpuTranspose;
 

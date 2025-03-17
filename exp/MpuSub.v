@@ -8,12 +8,16 @@ module MpuSub (
     output reg signed [8*25-1:0] result    
 );
 
-    integer i;
-    always @* begin
-        for (i = 0; i < 25; i = i + 1) begin
-            result[i*8 +: 8] = matrix_a[i*8 +: 8] - matrix_b[i*8 +: 8];
+    genvar col, row;
+    generate
+        for (col = 0; col < 5; col = col + 1) begin : col_loop
+            for (row = 0; row < 5; row = row + 1) begin : row_loop
+                always @(*) begin
+                    result[`at(col, row) +: 8] = matrix_a[`at(col, row) +: 8] - matrix_b[`at(col, row) +: 8];
+                end
+            end
         end
-    end
+    endgenerate
 
 endmodule
 

@@ -8,11 +8,19 @@ module MpuAdd (
     output reg signed [`MATRIX_5x5] result     // 5x5 8-bits matrix
 );
 
-    always @* begin
-        result = matrix_a + matrix_b;
-    end
+    genvar col, row;
+    generate
+        for (col = 0; col < 5; col = col + 1) begin : col_loop
+            for (row = 0; row < 5; row = row + 1) begin : row_loop
+                always @(*) begin
+                    result[`at(col, row) +: 8] = matrix_a[`at(col, row) +: 8] + matrix_b[`at(col, row) +: 8];
+                end
+            end
+        end
+    endgenerate
 
 endmodule
+
 
 module test_MpuAdd;
 

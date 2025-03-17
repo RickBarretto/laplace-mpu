@@ -6,12 +6,16 @@ module MpuOpposite (
     input      [`MATRIX_5x5] matrix_a,  // 5x5 8-bits matrix
     output reg [`MATRIX_5x5] result     // 5x5 8-bits matrix
 );
-
-    always @* begin
-        result = matrix_a * -1;
+    integer col, row;
+    always @(*) begin
+        for (col = 0; col < 5; col = col + 1) begin
+            for (row = 0; row < 5; row = row + 1) begin
+                result[`at(col, row) +: 8] = -matrix_a[`at(col, row) +: 8];
+            end
+        end
     end
-
 endmodule
+
 
 module test_MpuOpposite;
 

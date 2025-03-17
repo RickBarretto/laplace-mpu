@@ -1,15 +1,15 @@
-`define i8(x) 8'd``x                        // 8-bit integer
+`define i8(x) 8'sd``x                        // 8-bit integer
 `define MATRIX_5x5  0:(8*25-1)              // 5x5 matrix's indexes
 `define INTEGER_8   7:0                     // 8-bit integer indexes
 `define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuDet (
-    input      [`MATRIX_5x5] matrix,  // 5x5 8-bit matrix
-    input      [`INTEGER_8 ] size,    // 8-bit integer for the matrix size
-    output reg [`INTEGER_8 ] result   // 8-bit output result
+    input      signed [`MATRIX_5x5] matrix,  // 5x5 8-bit matrix
+    input      signed [`INTEGER_8 ] size,    // 8-bit integer for the matrix size
+    output reg signed [`INTEGER_8 ] result   // 8-bit output result
 );
 
-    reg [15:0] products [0:1][0:4];  // 2x5 matrix to store computed products
+    reg signed [15:0] products [0:1][0:4];  // 2x5 matrix to store computed products
     integer i;
 
     always @(*) begin
@@ -57,9 +57,9 @@ endmodule
 
 module test_MpuDet;
 
-    reg  [`MATRIX_5x5] matrix;
-    reg  [`INTEGER_8]  size;
-    wire [`INTEGER_8] result;
+    reg  signed [`MATRIX_5x5] matrix;
+    reg  signed [`INTEGER_8]  size;
+    wire signed [`INTEGER_8] result;
 
     MpuDet det_operation (
         .matrix(matrix),
@@ -112,19 +112,17 @@ module test_MpuDet;
     endtask
 
     task display_matrix;
-        input [`MATRIX_5x5] matrix;
-        input [`INTEGER_8] size;
+        input signed [`MATRIX_5x5] matrix;
+        input signed [`INTEGER_8] size;
         integer i, j;
         begin
             for (i = 0; i < size; i = i + 1) begin
                 for (j = 0; j < size; j = j + 1) begin
-                    $write("%4d ", matrix[`at(i, j) +: 8]); // Print elements in the same row
+                    $write("%4d ", $signed(matrix[`at(i, j) +: 8])); // Print elements in the same row
                 end
                 $display(""); // Move to the next row
             end
         end
     endtask
-
-
 
 endmodule

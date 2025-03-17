@@ -1,18 +1,22 @@
-`define i8(x) 8'd``x                /// defined a 8-bit integer
+`define i8(x) 8'sd``x                /// defined a 8-bit integer
 `define MATRIX_5x5 (0):(8*25-1)     /// defines a 5x5 matrix flatted array indexes
 `define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuSub (
-    input      [`MATRIX_5x5] matrix_a,  // 5x5 8-bits matrix
-    input      [`MATRIX_5x5] matrix_b,  // 5x5 8-bits matrix
-    output reg [`MATRIX_5x5] result     // 5x5 8-bits matrix
+    input      signed [8*25-1:0] matrix_a,  // Flattened 5x5 matrix of 8-bit elements
+    input      signed [8*25-1:0] matrix_b,  
+    output reg signed [8*25-1:0] result    
 );
 
+    integer i;
     always @* begin
-        result = matrix_a - matrix_b;
+        for (i = 0; i < 25; i = i + 1) begin
+            result[i*8 +: 8] = matrix_a[i*8 +: 8] - matrix_b[i*8 +: 8];
+        end
     end
 
 endmodule
+
 
 module test_MpuSub;
 
@@ -52,18 +56,17 @@ module test_MpuSub;
     end
 
     task display_matrix;
-        input [`MATRIX_5x5] matrix;
-        integer i;
+        input signed [8*25-1:0] matrix;
+        integer i, j;
         begin
             for (i = 0; i < 5; i = i + 1) begin
-                $display("%4d %4d %4d %4d %4d", 
-                    matrix[`at(i, 0) +: 8],
-                    matrix[`at(i, 1) +: 8],
-                    matrix[`at(i, 2) +: 8],
-                    matrix[`at(i, 3) +: 8],
-                    matrix[`at(i, 4) +: 8]);
+                for (j = 0; j < 5; j = j + 1) begin
+                    $write("%8d ", $signed(matrix[(i*5+j)*8 +: 8]));
+                end
+                $display(""); // New line for each row
             end
         end
     endtask
+
 
 endmodule

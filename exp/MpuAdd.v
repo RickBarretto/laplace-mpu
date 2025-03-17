@@ -1,11 +1,11 @@
-`define i8(x) 8'd``x                        /// defined a 8-bit integer
+`define i8(x) 8'sd``x                        /// defined a 8-bit integer
 `define MATRIX_5x5 (0):(8*25-1)             /// defines a 5x5 matrix flatted array indexes
 `define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuAdd (
-    input      [`MATRIX_5x5] matrix_a,  // 5x5 8-bits matrix
-    input      [`MATRIX_5x5] matrix_b,  // 5x5 8-bits matrix
-    output reg [`MATRIX_5x5] result     // 5x5 8-bits matrix
+    input      signed [`MATRIX_5x5] matrix_a,  // 5x5 8-bits matrix
+    input      signed [`MATRIX_5x5] matrix_b,  // 5x5 8-bits matrix
+    output reg signed [`MATRIX_5x5] result     // 5x5 8-bits matrix
 );
 
     always @* begin
@@ -16,9 +16,9 @@ endmodule
 
 module test_MpuAdd;
 
-    reg  [`MATRIX_5x5] matrix_a;
-    reg  [`MATRIX_5x5] matrix_b;
-    wire [`MATRIX_5x5] result;
+    reg  signed [`MATRIX_5x5] matrix_a;
+    reg  signed [`MATRIX_5x5] matrix_b;
+    wire signed [`MATRIX_5x5] result;
 
     MpuAdd add_operation (
         .matrix_a(matrix_a),
@@ -52,16 +52,16 @@ module test_MpuAdd;
     end
 
     task display_matrix;
-        input [`MATRIX_5x5] matrix;
+        input signed [`MATRIX_5x5] matrix;
         integer i;
         begin
             for (i = 0; i < 5; i = i + 1) begin
                 $display("%4d %4d %4d %4d %4d", 
-                    matrix[`at(i, 0) +: 8],
-                    matrix[`at(i, 1) +: 8],
-                    matrix[`at(i, 2) +: 8],
-                    matrix[`at(i, 3) +: 8],
-                    matrix[`at(i, 4) +: 8]);
+                    $signed(matrix[`at(i, 0) +: 8]),
+                    $signed(matrix[`at(i, 1) +: 8]),
+                    $signed(matrix[`at(i, 2) +: 8]),
+                    $signed(matrix[`at(i, 3) +: 8]),
+                    $signed(matrix[`at(i, 4) +: 8]));
             end
         end
     endtask

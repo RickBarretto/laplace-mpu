@@ -1,16 +1,15 @@
 `define i8(x) 8'sd``x
 `define INTEGER_8 7:0
-`define MATRIX8_5x5 0:(8*25-1)
-`define MATRIX16_5x5 0:(16*25-1)
+`define MATRIX_5x5 0:(8*25-1)
 `define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
 
 module MpuMul (
-    input      signed [`MATRIX8_5x5] matrix_a, // Flattened 5x5 matrix (each element 8 bits)
-    input      signed [`MATRIX8_5x5] matrix_b, // Flattened 5x5 matrix (each element 8 bits)
-    output reg signed [`MATRIX16_5x5] result   // Flattened 5x5 result matrix (each element 16 bits)
+    input      signed [`MATRIX_5x5] matrix_a, // Flattened 5x5 matrix (each element 8 bits)
+    input      signed [`MATRIX_5x5] matrix_b, // Flattened 5x5 matrix (each element 8 bits)
+    output reg signed [`MATRIX_5x5] result   // Flattened 5x5 result matrix (each element 16 bits)
 );
     integer i, j, k;
-    reg signed [15:0] temp_result [0:4][0:4];
+    reg signed [7:0] temp_result [0:4][0:4];
     reg signed [7:0] a_mat [0:4][0:4];
     reg signed [7:0] b_mat [0:4][0:4];
 
@@ -36,16 +35,16 @@ module MpuMul (
         // Flatten result matrix (Correct indexing order)
         for (i = 0; i < 5; i = i + 1) begin
             for (j = 0; j < 5; j = j + 1) begin
-                result[(j*5 + i)*16 +: 16] = temp_result[i][j];
+                result[(j*5 + i)*8 +: 8] = temp_result[i][j];
             end
         end
     end
 endmodule
 
 module test_MpuMul;
-    reg  signed [`MATRIX8_5x5] matrix_a;
-    reg  signed [`MATRIX8_5x5] matrix_b;
-    wire signed [`MATRIX16_5x5] result;
+    reg  signed [`MATRIX_5x5] matrix_a;
+    reg  signed [`MATRIX_5x5] matrix_b;
+    wire signed [`MATRIX_5x5] result;
     reg [`INTEGER_8] size;
     
     MpuMul uut (
@@ -74,8 +73,8 @@ module test_MpuMul;
         #10 $finish;
     end
     
-    task display8_matrix;
-        input signed [`MATRIX8_5x5] matrix;
+    task display_matrix;
+        input signed [`MATRIX_5x5] matrix;
         input [`INTEGER_8] size;
         integer i, j;
         begin
@@ -88,31 +87,17 @@ module test_MpuMul;
         end
     endtask
     
-    task display16_matrix;
-        input signed [`MATRIX16_5x5] matrix;
-        input [`INTEGER_8] size;
-        integer i, j;
-        begin
-            for (i = 0; i < size; i = i + 1) begin
-                for (j = 0; j < size; j = j + 1) begin
-                    $write("%4d", $signed(matrix[`at(i, j)*2 +: 16]));
-                end
-                $write("\n");
-            end
-        end
-    endtask
-    
     task run_test;
         begin
             #10;
             $display("------ TEST CASE --------");
             $display("Matrix A (matrix_a):");
-            display8_matrix(matrix_a, size);
+            display_matrix(matrix_a, size);
             $display("Matrix B (matrix_b):");
-            display8_matrix(matrix_b, size);
+            display_matrix(matrix_b, size);
             #10;
             $display("Matrix C (result):");
-            display16_matrix(result, size);
+            display_matrix(result, size);
             $display("-------------------------");
             #10;
         end

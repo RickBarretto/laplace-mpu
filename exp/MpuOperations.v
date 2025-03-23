@@ -1,3 +1,6 @@
+`define MATRIX_5x5 (0):(8*25-1)             /// 5x5 matrix flatted array indexes
+`define INTEGER_8 7:0                       /// 8-bits integer indexes
+
 module MpuOperations(
     input        [2:0] operation,
     input signed [`MATRIX_5x5] matrix_a,

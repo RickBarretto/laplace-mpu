@@ -23,7 +23,7 @@ module MpuOperations(
             4: MpuTranspose(matrix_a, result);
             // 5: MpuDet(matrix_a, determinant);
             // 6: MpuMul(matrix_a, matrix_b, result);
-            default:
+            // default: ;
         endcase
     end
 

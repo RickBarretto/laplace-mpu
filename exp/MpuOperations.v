@@ -18,8 +18,8 @@ module MpuOperations(
             2: MpuIMul(matrix_a, factor, result);
             3: MpuOpposite(matrix_a, result);
             4: MpuTranspose(matrix_a, result);
-            5: MpuDet(matrix_a, determinant);
-            6: MpuMul(matrix_a, matrix_b, result);
+            // 5: MpuDet(matrix_a, determinant);
+            // 6: MpuMul(matrix_a, matrix_b, result);
             default:
         endcase
     end

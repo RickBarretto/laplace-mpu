@@ -1,16 +1,16 @@
 
 
-module Teste (input Clock, input button, output LED_0, output LED_1);
+module Teste (input Clock, input button, input [2:0] ops, output LED_0, output LED_1, output LED_2);
     reg [199:0] Matrix_A ; // 5x5 8-bit matrix (flattened)
     reg [199:0] Matrix_B ; // 5x5 8-bit matrix (flattened)
     reg [199:0] Data_in; 
     reg wren; 
     reg [2:0] Adress; 
-	 reg [0:7] state;
+	 reg [7:0] state;
     wire [199:0] Data_out; 
     wire [199:0] Result; // 5x5 result matrix (flattened)
 
-    // Instanciação do módulo Teste_Read
+    // Instanciação do módulo de memoria
 		 
 		Teste_memory memory(
 			Adress,
@@ -19,13 +19,18 @@ module Teste (input Clock, input button, output LED_0, output LED_1);
 			wren,
 			Data_out);
     
-    // Instanciação do módulo MpuAdd para somar Matrix_A e Matrix_B
-    MpuAdd mpu_add (
-        Matrix_A, 
-        Matrix_B, 
-		  2,
-        Result // A matriz resultante será armazenada aqui
-    );
+	 MpuOperations op(
+		ops,
+		Matrix_A,
+		Matrix_B,
+		8'd5,
+		Matrix_B[0 +: 8],
+
+		Clock,
+
+    Result
+);
+	 
 	 
 	 debounce botao (
 		button,
@@ -33,9 +38,7 @@ module Teste (input Clock, input button, output LED_0, output LED_1);
 		B_button
 		);
 	 
-	 and (c,Clock, B_button);
-
-      always @(posedge B_button) begin
+    always @(posedge B_button) begin
         case (state)
             3'b000: begin
                 wren = 0;
@@ -82,7 +85,8 @@ module Teste (input Clock, input button, output LED_0, output LED_1);
         endcase
     end
 	 
-	 	assign LED_0 = Matrix_B[0];
-		assign LED_1 = Matrix_B[1];
+	 	assign LED_0 = state[0];
+		assign LED_1 = state[1];
+		assign LED_2 = state[2];
 	 
 endmodule

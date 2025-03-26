@@ -1,9 +1,9 @@
 
 
 module MpuMain (
-	input Clock, 
 	input button, 
 	input [2:0] ops,
+	input clock, 
 	
 	output LED_0, 
 	output LED_1, 
@@ -21,7 +21,7 @@ module MpuMain (
 		 
 	MemoryIO memory(
 		Adress,
-		Clock,
+		clock,
 		Data_in,
 		wren,
 		Data_out
@@ -34,7 +34,7 @@ module MpuMain (
 		8'd5,
 		Matrix_B[0 +: 8],
 
-		Clock,
+		clock,
 
     	Result
 	);
@@ -42,7 +42,7 @@ module MpuMain (
 	 
 	 Debounce botao (
 		button,
-		Clock,
+		clock,
 	
 		B_button
 	);

@@ -1,55 +1,73 @@
 `define i8(x) 8'sd``x
 `define INTEGER_8 7:0
-`define MATRIX_5x5 0:(8*25-1)
-`define at(col, row) (8 * (row + 5*col))    /// Access each 8-bit element in the 5x5 matrix
+`define MATRIX_5x5 (8*25-1):0
+`define at(row, col) (8 * (col + 5*row))
 
 module MpuMul (
     input      signed [`MATRIX_5x5] matrix_a, // Flattened 5x5 matrix (each element 8 bits)
     input      signed [`MATRIX_5x5] matrix_b, // Flattened 5x5 matrix (each element 8 bits)
+	 
+	 input clock,
+	 
     output reg signed [`MATRIX_5x5] result   // Flattened 5x5 result matrix (each element 16 bits)
 );
-    integer i, j, k;
-    reg signed [7:0] temp_result [0:4][0:4];
-    reg signed [7:0] a_mat [0:4][0:4];
-    reg signed [7:0] b_mat [0:4][0:4];
-
+    
+	 reg [`INTEGER_8] row;
+	 
     always @(*) begin
-        // Unpack flattened input matrices (Correct indexing order)
-        for (i = 0; i < 5; i = i + 1) begin
-            for (j = 0; j < 5; j = j + 1) begin
-                a_mat[i][j] = matrix_a[`at(i, j) +: 8];
-                b_mat[i][j] = matrix_b[`at(i, j) +: 8];
-                temp_result[i][j] = 0;
-            end
-        end
-        
-        // Matrix multiplication logic
-        for (i = 0; i < 5; i = i + 1) begin
-            for (j = 0; j < 5; j = j + 1) begin
-                for (k = 0; k < 5; k = k + 1) begin
-                    temp_result[i][j] = temp_result[i][j] + (a_mat[i][k] * b_mat[k][j]);
-                end
-            end
-        end
-        
-        // Flatten result matrix (Correct indexing order)
-        for (i = 0; i < 5; i = i + 1) begin
-            for (j = 0; j < 5; j = j + 1) begin
-                result[(j*5 + i)*8 +: 8] = temp_result[i][j];
-            end
-        end
+		result[`at(row, 0) +: 8] <= 
+			  matrix_a[`at(row, 0) +: 8] * matrix_b[`at(0, 0) +: 8]
+			+ matrix_a[`at(row, 1) +: 8] * matrix_b[`at(1, 0) +: 8]
+			+ matrix_a[`at(row, 2) +: 8] * matrix_b[`at(2, 0) +: 8]
+			+ matrix_a[`at(row, 3) +: 8] * matrix_b[`at(3, 0) +: 8]
+			+ matrix_a[`at(row, 4) +: 8] * matrix_b[`at(4, 0) +: 8];
+			
+			result[`at(row, 1) +: 8] <= 
+			  matrix_a[`at(row, 0) +: 8] * matrix_b[`at(0, 1) +: 8]
+			+ matrix_a[`at(row, 1) +: 8] * matrix_b[`at(1, 1) +: 8]
+			+ matrix_a[`at(row, 2) +: 8] * matrix_b[`at(2, 1) +: 8]
+			+ matrix_a[`at(row, 3) +: 8] * matrix_b[`at(3, 1) +: 8]
+			+ matrix_a[`at(row, 4) +: 8] * matrix_b[`at(4, 1) +: 8];
+			
+		result[`at(row, 2) +: 8] <= 
+			  matrix_a[`at(row, 0) +: 8] * matrix_b[`at(0, 2) +: 8]
+			+ matrix_a[`at(row, 1) +: 8] * matrix_b[`at(1, 2) +: 8]
+			+ matrix_a[`at(row, 2) +: 8] * matrix_b[`at(2, 2) +: 8]
+			+ matrix_a[`at(row, 3) +: 8] * matrix_b[`at(3, 2) +: 8]
+			+ matrix_a[`at(row, 4) +: 8] * matrix_b[`at(4, 2) +: 8];
+			
+		result[`at(row, 3) +: 8] <= 
+			  matrix_a[`at(row, 0) +: 8] * matrix_b[`at(0, 3) +: 8]
+			+ matrix_a[`at(row, 1) +: 8] * matrix_b[`at(1, 3) +: 8]
+			+ matrix_a[`at(row, 2) +: 8] * matrix_b[`at(2, 3) +: 8]
+			+ matrix_a[`at(row, 3) +: 8] * matrix_b[`at(3, 3) +: 8]
+			+ matrix_a[`at(row, 4) +: 8] * matrix_b[`at(4, 3) +: 8];
+			
+		result[`at(row, 4) +: 8] <= 
+			  matrix_a[`at(row, 0) +: 8] * matrix_b[`at(0, 4) +: 8]
+			+ matrix_a[`at(row, 1) +: 8] * matrix_b[`at(1, 4) +: 8]
+			+ matrix_a[`at(row, 2) +: 8] * matrix_b[`at(2, 4) +: 8]
+			+ matrix_a[`at(row, 3) +: 8] * matrix_b[`at(3, 4) +: 8]
+			+ matrix_a[`at(row, 4) +: 8] * matrix_b[`at(4, 4) +: 8];
+
+		if (row == 4) begin
+		  row <= 0;
+		end else begin
+		  row <= row + 1;
+		end
     end
 endmodule
+
 
 module test_MpuMul;
     reg  signed [`MATRIX_5x5] matrix_a;
     reg  signed [`MATRIX_5x5] matrix_b;
     wire signed [`MATRIX_5x5] result;
-    reg [`INTEGER_8] size;
     
     MpuMul uut (
         .matrix_a(matrix_a),
         .matrix_b(matrix_b),
+        .clock(1'd0),
         .result(result)
     );
     

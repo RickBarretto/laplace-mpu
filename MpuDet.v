@@ -13,7 +13,7 @@ module MpuDet (
 );
 	 
 	 wire [7:0] high;
-	 reg unsigned [7:0] i;
+	 integer i = 0;
 	 reg [7:0] products[0:1][0:4];
 	 reg [7:0] diff[0:5];
 
@@ -31,7 +31,7 @@ module MpuDet (
 		3: begin
 			if (i < 3) begin
 				products[0][i] <= 
-				     `mat(0, i) 
+				     `mat(i, i) 
 					* `mat(1, (1+i)%high) 
 					* `mat(2, (2+i)%high);
 			end

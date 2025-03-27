@@ -1,268 +1,141 @@
 `define i8(x) 8'sd``x
-`define ROW 0:((8*5)-1)
-`define arrayOf(n) 0:((8*n)-1)
-`define MATRIX_5x5  0:(8*25-1)
-`define INTEGER_8   7:0
+`define INTEGER_8 7:0
+`define MATRIX_5x5 (8*25-1):0
 `define at(row, col) (8 * (col + 5*row))
-`define atCol(col) (8 * col)
-
+`define a(row, col) matrix[`at(row, col) +: 8]
 
 module MpuDet (
-    input  signed [`MATRIX_5x5] matrix,
-    input  signed [`INTEGER_8] size,
-    output signed [`INTEGER_8] result
+    input      signed [`MATRIX_5x5] matrix,
+    input      signed [`INTEGER_8]  size,
+
+    input start,
+    input clock,
+    input reset,
+
+    output reg signed [`INTEGER_8]  result,
+    output reg done
 );
 
-    wire signed [`ROW] row1;
-    wire signed [`ROW] row2;
-    wire signed [`ROW] row3;
-    wire signed [`ROW] row4;
-    wire signed [`ROW] row5;
+    parameter IDLE   = 0;
+    parameter START  = 1;
+    parameter FETCH  = 2;
+    parameter MUL    = 3;
+    parameter SUM    = 4;
+    parameter FINISH = 5;
 
-    wire signed [`INTEGER_8] det2;
-    wire signed [`INTEGER_8] det3;
-    wire signed [`INTEGER_8] det4;
-    wire signed [`INTEGER_8] det5;
+    integer i;
+    integer state;
+    integer nextState;
 
-    assign row1 = matrix[`at(0, 0) +: (8*5)];
-    assign row2 = matrix[`at(1, 0) +: (8*5)];
-    assign row3 = matrix[`at(2, 0) +: (8*5)];
-    assign row4 = matrix[`at(3, 0) +: (8*5)];
-    assign row5 = matrix[`at(4, 0) +: (8*5)];
+    // Fetch
+    reg [7:0] main[0:5][0:5];
+    reg [7:0] sec[0:5][0:5];
 
-    Det2 det_instance2x2 (row1[0 +: 8*2], row2[0 +: 8*2], det2);
-    Det3 det_instance3x3 (row1[0 +: 8*3], row2[0 +: 8*3], row3[0 +: 8*3], det3);
-    Det4 det_instance4x4 (row1[0 +: 8*4], row2[0 +: 8*4], row3[0 +: 8*4], row4[0 +: 8*4], det4);
-    Det5 det_instance5x5 (row1[0 +: 8*5], row2[0 +: 8*5], row3[0 +: 8*5], row4[0 +: 8*5], row5[0 +: 8*5], det5);
+    // Mul
+    reg [7:0] products[0:1][0:5];
 
-    assign result = 
-        (size == 1)? matrix[0 +: 8]
-        : (size == 2)? det2 
-        : (size == 3)? det3
-        : (size == 4)? det4
-        : (size == 5)? det5
-        : 0;
+    // Sum
+    reg [7:0] diff[0:5];
 
-endmodule
+    always @(posedge clock, posedge reset, posedge start) begin
+        if (reset || start) begin 
+            state <= IDLE;
+            main <= 0; sec <= 0; products <= 0; 
+            i <= 0;
+            done <= 0;
+        end else begin 
+            state <= nextState;
+        end
 
+        if (start) begin 
+            state <= START;
+        end
+    end
 
-module Det2(
-    input signed [`arrayOf(2)] row1,
-    input signed [`arrayOf(2)] row2,
+    always @(*) begin
+        case (state)
+        START: nextState <= FETCH;
+        FETCH: begin
+            case (size)
+            2: begin
+                main[0] = {`a(0, 0), `a(1, 1)};
+                main[1] = 8'd1;
+                main[2] = 8'd1;
+                main[3] = 8'd1;
+                main[4] = 8'd1;
 
-    output signed [`INTEGER_8] result
-);
+                sec[0]  = {`a(0, 1), `a(1, 0)};
+                sec[1] = 8'd1;
+                sec[2] = 8'd1;
+                sec[3] = 8'd1;
+                sec[4] = 8'd1;
+            end
+            3: begin
+                main[0] = {`a(0, 0), `a(1, 1), `a(2, 2)};
+                main[1] = {`a(0, 1), `a(1, 2), `a(2, 0)};
+                main[2] = {`a(0, 2), `a(1, 0), `a(2, 1)};
+                main[3] = 8'd1;
+                main[4] = 8'd1;
 
-    // a b
-    // c d
+                sec[0]  = {`a(0, 2), `a(1, 1), `a(2, 0)};
+                sec[1]  = {`a(0, 1), `a(1, 0), `a(2, 2)};
+                sec[2]  = {`a(0, 0), `a(1, 2), `a(2, 1)};
+                sec[3]  = 8'd1;
+                sec[4]  = 8'd1;
+            end
+            4: begin
+                main[0] = {`a(0, 0), `a(1, 1), `a(2, 2), `a(3, 3)};
+                main[1] = {`a(0, 1), `a(1, 2), `a(2, 3), `a(3, 0)};
+                main[2] = {`a(0, 2), `a(1, 3), `a(2, 0), `a(3, 1)};
+                main[3] = {`a(0, 3), `a(1, 0), `a(2, 1), `a(3, 2)};
+                main[4] = 8'd1;
 
-    wire [7:0] a;
-    wire [7:0] b;
-    wire [7:0] c;
-    wire [7:0] d;
+                sec[0]  = {`a(0, 3), `a(1, 2), `a(2, 1), `a(3, 0)};
+                sec[1]  = {`a(0, 2), `a(1, 1), `a(2, 0), `a(3, 3)};
+                sec[2]  = {`a(0, 1), `a(1, 0), `a(2, 3), `a(3, 2)};
+                sec[3]  = {`a(0, 0), `a(1, 3), `a(2, 2), `a(3, 1)};
+                sec[4]  = 8'd1;
+            end
+            5: begin
+                main[0] = {`a(0, 0), `a(1, 1), `a(2, 2), `a(3, 3), `a(4, 4)};
+                main[1] = {`a(0, 1), `a(1, 2), `a(2, 3), `a(3, 4), `a(4, 0)};
+                main[2] = {`a(0, 2), `a(1, 3), `a(2, 4), `a(3, 0), `a(4, 1)};
+                main[3] = {`a(0, 3), `a(1, 4), `a(2, 0), `a(3, 1), `a(4, 2)};
+                main[4] = {`a(0, 4), `a(1, 0), `a(2, 1), `a(3, 2), `a(4, 3)};
 
-    assign a = row1[0 +: 8];
-    assign b = row1[8 +: 8];
-    assign c = row2[0 +: 8];
-    assign d = row2[8 +: 8];
+                sec[0]  = {`a(0, 4), `a(1, 3), `a(2, 2), `a(3, 1), `a(4, 0)};
+                sec[1]  = {`a(0, 3), `a(1, 2), `a(2, 1), `a(3, 0), `a(4, 4)};
+                sec[2]  = {`a(0, 2), `a(1, 1), `a(2, 0), `a(3, 4), `a(4, 3)};
+                sec[3]  = {`a(0, 1), `a(1, 0), `a(2, 4), `a(3, 3), `a(4, 2)};
+                sec[4]  = {`a(0, 0), `a(1, 4), `a(2, 3), `a(3, 2), `a(4, 1)};
+            end
+            endcase
+            nextState <= MUL;
+        end
+        MUL: begin
+            if (i < 5) begin
+                products[0][i] <= main[0 +: 8] * main[8 +: 8] * main[16 +: 8] * main[24 +: 8] * main[32 +: 8];
+                products[1][i] <= sec[0  +: 8] *  sec[8 +: 8] *  sec[16 +: 8] *  sec[24 +: 8] *  sec[32 +: 8];
 
-    assign result = 
-        a * d - b * c;
-
-endmodule
-
-
-module Det3(
-    input signed [`arrayOf(3)] row1,
-    input signed [`arrayOf(3)] row2,
-    input signed [`arrayOf(3)] row3,
-
-    output signed [`INTEGER_8] result
-);
-
-    // a b c
-    // d e f
-    // g h i
-
-    wire [7:0] a;
-    wire [7:0] b;
-    wire [7:0] c;
-
-    wire [7:0] a_partial; 
-    wire [7:0] b_partial; 
-    wire [7:0] c_partial;
-
-    assign a = row1[`at(0, 0) +: 8];
-    assign b = row1[`at(0, 1) +: 8];
-    assign c = row1[`at(0, 2) +: 8];
-
-    Det2 det_a(
-        {row2[`atCol(1) +: 8], row2[`atCol(2) +: 8]},
-        {row3[`atCol(1) +: 8], row3[`atCol(2) +: 8]}, 
-        a_partial
-    );
-
-    Det2 det_b(
-        {row2[`atCol(0) +: 8], row2[`atCol(2) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(2) +: 8]},
-        b_partial
-    );
-
-    Det2 det_c(
-        {row2[`atCol(0) +: 8], row2[`atCol(1) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(1) +: 8]},
-        c_partial
-    );
-
-    assign result =
-        a * a_partial - b * b_partial + c * c_partial;
-    
-
-endmodule
-
-
-module Det4(
-    input signed [`arrayOf(4)] row1,
-    input signed [`arrayOf(4)] row2,
-    input signed [`arrayOf(4)] row3,
-    input signed [`arrayOf(4)] row4,
-
-    output signed [`INTEGER_8] result
-);
-
-    // a b c d
-    // e f g h
-    // i j k l
-    // m n o p
-
-    wire [7:0] a;
-    wire [7:0] b;
-    wire [7:0] c;
-    wire [7:0] d;
-
-    wire [7:0] a_partial; 
-    wire [7:0] b_partial; 
-    wire [7:0] c_partial;
-    wire [7:0] d_partial;
-
-    assign a = row1[`at(0, 0) +: 8];
-    assign b = row1[`at(0, 1) +: 8];
-    assign c = row1[`at(0, 2) +: 8];
-    assign d = row1[`at(0, 3) +: 8];
-
-    Det3 det_a(
-        {row2[`atCol(1) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8]},
-        {row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8]}, 
-        {row4[`atCol(1) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8]}, 
-        a_partial
-    );
-
-    Det3 det_b(
-        {row2[`atCol(0) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8]}, 
-        b_partial
-    );
-
-    Det3 det_c(
-        {row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(3) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(3) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(3) +: 8]}, 
-        c_partial
-    );
-    
-    Det3 det_d(
-        {row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(2) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(2) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(2) +: 8]}, 
-        d_partial
-    );
-
-    assign result =
-        a * a_partial - b * b_partial 
-        + c * c_partial - d * d_partial;
-    
-
-endmodule
-
-
-module Det5(
-    input signed [`arrayOf(5)] row1,
-    input signed [`arrayOf(5)] row2,
-    input signed [`arrayOf(5)] row3,
-    input signed [`arrayOf(5)] row4,
-    input signed [`arrayOf(5)] row5,
-
-    output signed [`INTEGER_8] result
-);
-
-    // a b c d e
-    // f g h i j
-    // k l m n o
-    // p q r s t
-    // u v w x y
-
-    wire [7:0] a;
-    wire [7:0] b;
-    wire [7:0] c;
-    wire [7:0] d;
-    wire [7:0] e;
-
-    wire [7:0] a_partial; 
-    wire [7:0] b_partial; 
-    wire [7:0] c_partial;
-    wire [7:0] d_partial;
-    wire [7:0] e_partial;
-
-    assign a = row1[`at(0, 0) +: 8];
-    assign b = row1[`at(0, 1) +: 8];
-    assign c = row1[`at(0, 2) +: 8];
-    assign d = row1[`at(0, 3) +: 8];
-    assign e = row1[`at(0, 4) +: 8];
-
-    Det4 det_a(
-        {row2[`atCol(1) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8], row2[`atCol(4) +: 8]},
-        {row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8], row3[`atCol(4) +: 8]}, 
-        {row4[`atCol(1) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8], row4[`atCol(4) +: 8]}, 
-        {row5[`atCol(1) +: 8], row5[`atCol(2) +: 8], row5[`atCol(3) +: 8], row5[`atCol(4) +: 8]}, 
-        a_partial
-    );
-
-    Det4 det_b(
-        {row2[`atCol(0) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8], row2[`atCol(4) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8], row3[`atCol(4) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8], row4[`atCol(4) +: 8]}, 
-        {row5[`atCol(0) +: 8], row5[`atCol(2) +: 8], row5[`atCol(3) +: 8], row5[`atCol(4) +: 8]},  
-        b_partial
-    );
-
-    Det4 det_c(
-        {row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(3) +: 8], row2[`atCol(4) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(3) +: 8], row3[`atCol(4) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(3) +: 8], row4[`atCol(4) +: 8]}, 
-        {row5[`atCol(0) +: 8], row5[`atCol(1) +: 8], row5[`atCol(3) +: 8], row5[`atCol(4) +: 8]}, 
-        c_partial
-    );
-    
-    Det4 det_d(
-        {row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(2) +: 8], row2[`atCol(4) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], row3[`atCol(4) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(2) +: 8], row4[`atCol(4) +: 8]}, 
-        {row5[`atCol(0) +: 8], row5[`atCol(1) +: 8], row5[`atCol(2) +: 8], row5[`atCol(4) +: 8]}, 
-        d_partial
-    );
-   
-    Det4 det_e(
-        {row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8]},
-        {row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8]}, 
-        {row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8]}, 
-        {row5[`atCol(0) +: 8], row5[`atCol(1) +: 8], row5[`atCol(2) +: 8], row5[`atCol(3) +: 8]}, 
-        e_partial
-    );
-
-    assign result =
-        a * a_partial - b * b_partial 
-        + c * c_partial - d * d_partial + e * e_partial;
-    
-
+                i <= i + 1;
+            end else begin
+                i <= 0;
+                nextState <= SUM;
+            end
+        end
+        SUM: begin
+            for (i = 0; i < 5; i = i + 1) begin
+                diff[i] <= products[0][i] - products[1][i];
+            end
+            nextState <= FINISH;
+        end
+        FINISH: begin
+            result    <= diff[0] + diff[1] + diff[2] + diff[3] + diff[4];
+            done      <= 1;
+            nextState <= FINISH;
+        end
+        default:
+            nextState <= IDLE;
+        endcase
+    end
 endmodule

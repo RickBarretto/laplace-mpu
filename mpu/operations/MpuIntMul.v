@@ -13,7 +13,9 @@ module MpuIntMul (
     generate
         for (col = 0; col < 5; col = col + 1) begin : col_loop
             for (row = 0; row < 5; row = row + 1) begin : row_loop
-                assign = result[`at(col, row) +: 8] = factor * matrix_a[`at(col, row) +: 8];
+                always @(*) begin
+                    result[`at(col, row) +: 8] = factor * matrix_a[`at(col, row) +: 8];
+                end
             end
         end
     endgenerate

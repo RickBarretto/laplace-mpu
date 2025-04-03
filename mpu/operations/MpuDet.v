@@ -36,39 +36,15 @@ module MpuDet (
 	always @(posedge clock) begin
 		case (size)
 			1: result <= matrix[0 +: 8];
-			2: result <= Det2(row1, row2);
-			3: result <= Det3(row1, row2, row3);
+			2: result <= row1[0 +: 8] * row2[8 +: 8] - row1[8 +: 8] * row2[0 +: 8];
+			3: result <= 
+				row1[0*8 +: 8] * row2[1*8 +: 8] * row3[2*8 +: 8]
+				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
+				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];;
 			4: result <= det4;
 			5: result <= det5;
 		endcase
 	end
-
-	function [`INTEGER_8] Det2;
-		input signed [`arrayOf(2)] row1;
-		input signed [`arrayOf(2)] row2;
-
-		begin
-			result = row1[0 +: 8] * row2[8 +: 8] - row1[8 +: 8] * row2[0 +: 8];
-		end
-
-	endfunction
-
-	function [`INTEGER_8] Det3;
-		input signed [`arrayOf(3)] row1;
-		input signed [`arrayOf(3)] row2;
-		input signed [`arrayOf(3)] row3;
-
-		begin
-			// a b c
-			// d e f
-			// g h i
-
-			Det3 = row1[0*8 +: 8] * row2[1*8 +: 8] * row3[2*8 +: 8]
-				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
-				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];
-		end
-
-	endfunction
 
 endmodule
 
@@ -114,7 +90,6 @@ module MpuDet4(
 				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
 				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];
 		end
-
 	endfunction
 
 endmodule
@@ -164,7 +139,6 @@ module MpuDet5(
 				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
 				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];
 		end
-
 	endfunction
 
 	function [`INTEGER_8] Det4;

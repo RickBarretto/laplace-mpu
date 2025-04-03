@@ -36,11 +36,13 @@ module MpuDet (
 	always @(posedge clock) begin
 		case (size)
 			1: result <= matrix[0 +: 8];
-			2: result <= row1[0 +: 8] * row2[8 +: 8] - row1[8 +: 8] * row2[0 +: 8];
+			2: result <= 
+				matrix[0 +: 8] * matrix[`at(1, 1) +: 8] 
+				- matrix[`at(0, 1) +: 8] * matrix[`at(1, 0) +: 8];
 			3: result <= 
-				row1[0*8 +: 8] * row2[1*8 +: 8] * row3[2*8 +: 8]
-				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
-				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];;
+				matrix[`at(0, 0) +: 8] * matrix[`at(1, 1) +: 8] * matrix[`at(2, 2) +: 8]
+				- matrix[`at(0, 1) +: 8] * matrix[`at(1, 2) +: 8] * matrix[`at(2, 0) +: 8]
+				+ matrix[`at(0, 2) +: 8] * matrix[`at(1, 0) +: 8] * matrix[`at(2, 1) +: 8];
 			4: result <= det4;
 			5: result <= det5;
 		endcase

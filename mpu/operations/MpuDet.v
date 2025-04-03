@@ -33,19 +33,19 @@ module MpuDet (
 	MpuDet4 mpud4(row1, row2, row3, row4, clock, det4);
 	MpuDet5 mpud5(row1, row2, row3, row4, row5, clock, det5);
 
+
 	always @(posedge clock) begin
-		case (size)
-			1: result <= matrix[0 +: 8];
-			2: result <= 
+		if (size == 1) result <= matrix[0 +: 8];
+		else if (size == 2) result <= 
 				matrix[0 +: 8] * matrix[`at(1, 1) +: 8] 
 				- matrix[`at(0, 1) +: 8] * matrix[`at(1, 0) +: 8];
-			3: result <= 
+		else if (size == 3) result <= 
 				matrix[`at(0, 0) +: 8] * matrix[`at(1, 1) +: 8] * matrix[`at(2, 2) +: 8]
 				- matrix[`at(0, 1) +: 8] * matrix[`at(1, 2) +: 8] * matrix[`at(2, 0) +: 8]
 				+ matrix[`at(0, 2) +: 8] * matrix[`at(1, 0) +: 8] * matrix[`at(2, 1) +: 8];
-			4: result <= det4;
-			5: result <= det5;
-		endcase
+		else if (size == 4) result <= det4;
+		else if (size == 5) result <= det5;
+		else result <= 0;
 	end
 
 endmodule

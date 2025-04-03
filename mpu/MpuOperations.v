@@ -26,7 +26,7 @@ module MpuOperations(
 	 MpuIntMul(matrix_a, factor, imul);
 	 MpuOpposite(matrix_a, opp);
 	 MpuTranspose(matrix_a, trans);
-	 // MpuDet(matrix_a, determinant);
+	 MpuDet(matrix_a, size, clock, determinant);
 	 MpuMul(matrix_a, matrix_b, size, clock, mul);
 
     always @(posedge clock) begin
@@ -36,7 +36,7 @@ module MpuOperations(
             2: result <= imul;
             3: result <= opp;
             4: result <= trans;
-            // 5: 
+            5: result <= determinant;
             6: result <= mul;
             default: ;
         endcase

@@ -12,7 +12,7 @@ module MpuDet (
     input  signed [`INTEGER_8] size,
 	input clock,
 
-    output reg signed [31:0] result
+    output reg signed [`INTEGER_8] result
 );
 
     wire signed [`ROW] row1;
@@ -27,8 +27,8 @@ module MpuDet (
     assign row4 = matrix[`at(3, 0) +: (8*5)];
     assign row5 = matrix[`at(4, 0) +: (8*5)];
 	 
-	 wire signed [31:0] det4;
-	 wire signed [31:0] det5;
+	 wire signed [`INTEGER_8] det4;
+	 wire signed [`INTEGER_8] det5;
 
 	MpuDet4 mpud4(row1, row2, row3, row4, clock, det4);
 	MpuDet5 mpud5(row1, row2, row3, row4, row5, clock, det5);
@@ -43,7 +43,7 @@ module MpuDet (
 		endcase
 	end
 
-	function [31:0] Det2;
+	function [`INTEGER_8] Det2;
 		input signed [`arrayOf(2)] row1;
 		input signed [`arrayOf(2)] row2;
 
@@ -53,7 +53,7 @@ module MpuDet (
 
 	endfunction
 
-	function [31:0] Det3;
+	function [`INTEGER_8] Det3;
 		input signed [`arrayOf(3)] row1;
 		input signed [`arrayOf(3)] row2;
 		input signed [`arrayOf(3)] row3;
@@ -80,10 +80,10 @@ module MpuDet4(
 
 	input clock,
 
-	output reg signed [31:0] result
+	output reg signed [`INTEGER_8] result
 );
 
-	reg [31:0] diagonals[0:3];
+	reg [`INTEGER_8] diagonals[0:3];
 
 	integer i = 0;
 
@@ -100,7 +100,7 @@ module MpuDet4(
 		end
 	end
 
-	function [31:0] Det3;
+	function [`INTEGER_8] Det3;
 		input signed [`arrayOf(3)] row1;
 		input signed [`arrayOf(3)] row2;
 		input signed [`arrayOf(3)] row3;
@@ -129,10 +129,10 @@ module MpuDet5(
 	
 	input clock,
 
-	output reg signed [31:0] result
+	output reg signed [`INTEGER_8] result
 );
 
-	reg [31:0] diagonals[0:4];
+	reg [`INTEGER_8] diagonals[0:4];
 
 	integer i = 0;
 
@@ -150,7 +150,7 @@ module MpuDet5(
 		end
 	end
 	
-	function [31:0] Det3;
+	function [`INTEGER_8] Det3;
 		input signed [`arrayOf(3)] row1;
 		input signed [`arrayOf(3)] row2;
 		input signed [`arrayOf(3)] row3;
@@ -167,7 +167,7 @@ module MpuDet5(
 
 	endfunction
 
-	function [31:0] Det4;
+	function [`INTEGER_8] Det4;
 		input signed [`arrayOf(4)] row1;
 		input signed [`arrayOf(4)] row2;
 		input signed [`arrayOf(4)] row3;

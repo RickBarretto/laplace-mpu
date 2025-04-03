@@ -1,141 +1,201 @@
 `define i8(x) 8'sd``x
-`define INTEGER_8 7:0
-`define MATRIX_5x5 (8*25-1):0
+`define ROW 0:((8*5)-1)
+`define arrayOf(n) 0:((8*n)-1)
+`define MATRIX_5x5  0:(8*25-1)
+`define INTEGER_8   7:0
 `define at(row, col) (8 * (col + 5*row))
-`define a(row, col) matrix[`at(row, col) +: 8]
+`define atCol(col) (8 * col)
+
 
 module MpuDet (
-    input      signed [`MATRIX_5x5] matrix,
-    input      signed [`INTEGER_8]  size,
+    input  signed [`MATRIX_5x5] matrix,
+    input  signed [`INTEGER_8] size,
+	input clock,
 
-    input start,
-    input clock,
-    input reset,
-
-    output reg signed [`INTEGER_8]  result,
-    output reg done
+    output reg signed [31:0] result
 );
 
-    parameter IDLE   = 0;
-    parameter START  = 1;
-    parameter FETCH  = 2;
-    parameter MUL    = 3;
-    parameter SUM    = 4;
-    parameter FINISH = 5;
+    wire signed [`ROW] row1;
+    wire signed [`ROW] row2;
+    wire signed [`ROW] row3;
+    wire signed [`ROW] row4;
+    wire signed [`ROW] row5;
 
-    integer i;
-    integer state;
-    integer nextState;
+    assign row1 = matrix[`at(0, 0) +: (8*5)];
+    assign row2 = matrix[`at(1, 0) +: (8*5)];
+    assign row3 = matrix[`at(2, 0) +: (8*5)];
+    assign row4 = matrix[`at(3, 0) +: (8*5)];
+    assign row5 = matrix[`at(4, 0) +: (8*5)];
+	 
+	 wire signed [31:0] det4;
+	 wire signed [31:0] det5;
 
-    // Fetch
-    reg [7:0] main[0:5][0:5];
-    reg [7:0] sec[0:5][0:5];
+	MpuDet4 mpud4(row1, row2, row3, row4, clock, det4);
+	MpuDet5 mpud5(row1, row2, row3, row4, row5, clock, det5);
 
-    // Mul
-    reg [7:0] products[0:1][0:5];
+	always @(posedge clock) begin
+		case (size)
+			1: result <= matrix[0 +: 8];
+			2: result <= Det2(row1, row2);
+			3: result <= Det3(row1, row2, row3);
+			4: result <= det4;
+			5: result <= det5;
+		endcase
+	end
 
-    // Sum
-    reg [7:0] diff[0:5];
+	function [31:0] Det2;
+		input signed [`arrayOf(2)] row1;
+		input signed [`arrayOf(2)] row2;
 
-    always @(posedge clock, posedge reset, posedge start) begin
-        if (reset || start) begin 
-            state <= IDLE;
-            main <= 0; sec <= 0; products <= 0; 
-            i <= 0;
-            done <= 0;
-        end else begin 
-            state <= nextState;
-        end
+		begin
+			result = row1[0 +: 8] * row2[8 +: 8] - row1[8 +: 8] * row2[0 +: 8];
+		end
 
-        if (start) begin 
-            state <= START;
-        end
-    end
+	endfunction
 
-    always @(*) begin
-        case (state)
-        START: nextState <= FETCH;
-        FETCH: begin
-            case (size)
-            2: begin
-                main[0] = {`a(0, 0), `a(1, 1)};
-                main[1] = 8'd1;
-                main[2] = 8'd1;
-                main[3] = 8'd1;
-                main[4] = 8'd1;
+	function [31:0] Det3;
+		input signed [`arrayOf(3)] row1;
+		input signed [`arrayOf(3)] row2;
+		input signed [`arrayOf(3)] row3;
 
-                sec[0]  = {`a(0, 1), `a(1, 0)};
-                sec[1] = 8'd1;
-                sec[2] = 8'd1;
-                sec[3] = 8'd1;
-                sec[4] = 8'd1;
-            end
-            3: begin
-                main[0] = {`a(0, 0), `a(1, 1), `a(2, 2)};
-                main[1] = {`a(0, 1), `a(1, 2), `a(2, 0)};
-                main[2] = {`a(0, 2), `a(1, 0), `a(2, 1)};
-                main[3] = 8'd1;
-                main[4] = 8'd1;
+		begin
+			// a b c
+			// d e f
+			// g h i
 
-                sec[0]  = {`a(0, 2), `a(1, 1), `a(2, 0)};
-                sec[1]  = {`a(0, 1), `a(1, 0), `a(2, 2)};
-                sec[2]  = {`a(0, 0), `a(1, 2), `a(2, 1)};
-                sec[3]  = 8'd1;
-                sec[4]  = 8'd1;
-            end
-            4: begin
-                main[0] = {`a(0, 0), `a(1, 1), `a(2, 2), `a(3, 3)};
-                main[1] = {`a(0, 1), `a(1, 2), `a(2, 3), `a(3, 0)};
-                main[2] = {`a(0, 2), `a(1, 3), `a(2, 0), `a(3, 1)};
-                main[3] = {`a(0, 3), `a(1, 0), `a(2, 1), `a(3, 2)};
-                main[4] = 8'd1;
+			Det3 = row1[0*8 +: 8] * row2[1*8 +: 8] * row3[2*8 +: 8]
+				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
+				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];
+		end
 
-                sec[0]  = {`a(0, 3), `a(1, 2), `a(2, 1), `a(3, 0)};
-                sec[1]  = {`a(0, 2), `a(1, 1), `a(2, 0), `a(3, 3)};
-                sec[2]  = {`a(0, 1), `a(1, 0), `a(2, 3), `a(3, 2)};
-                sec[3]  = {`a(0, 0), `a(1, 3), `a(2, 2), `a(3, 1)};
-                sec[4]  = 8'd1;
-            end
-            5: begin
-                main[0] = {`a(0, 0), `a(1, 1), `a(2, 2), `a(3, 3), `a(4, 4)};
-                main[1] = {`a(0, 1), `a(1, 2), `a(2, 3), `a(3, 4), `a(4, 0)};
-                main[2] = {`a(0, 2), `a(1, 3), `a(2, 4), `a(3, 0), `a(4, 1)};
-                main[3] = {`a(0, 3), `a(1, 4), `a(2, 0), `a(3, 1), `a(4, 2)};
-                main[4] = {`a(0, 4), `a(1, 0), `a(2, 1), `a(3, 2), `a(4, 3)};
+	endfunction
 
-                sec[0]  = {`a(0, 4), `a(1, 3), `a(2, 2), `a(3, 1), `a(4, 0)};
-                sec[1]  = {`a(0, 3), `a(1, 2), `a(2, 1), `a(3, 0), `a(4, 4)};
-                sec[2]  = {`a(0, 2), `a(1, 1), `a(2, 0), `a(3, 4), `a(4, 3)};
-                sec[3]  = {`a(0, 1), `a(1, 0), `a(2, 4), `a(3, 3), `a(4, 2)};
-                sec[4]  = {`a(0, 0), `a(1, 4), `a(2, 3), `a(3, 2), `a(4, 1)};
-            end
-            endcase
-            nextState <= MUL;
-        end
-        MUL: begin
-            if (i < 5) begin
-                products[0][i] <= main[0 +: 8] * main[8 +: 8] * main[16 +: 8] * main[24 +: 8] * main[32 +: 8];
-                products[1][i] <= sec[0  +: 8] *  sec[8 +: 8] *  sec[16 +: 8] *  sec[24 +: 8] *  sec[32 +: 8];
+endmodule
 
-                i <= i + 1;
-            end else begin
-                i <= 0;
-                nextState <= SUM;
-            end
-        end
-        SUM: begin
-            for (i = 0; i < 5; i = i + 1) begin
-                diff[i] <= products[0][i] - products[1][i];
-            end
-            nextState <= FINISH;
-        end
-        FINISH: begin
-            result    <= diff[0] + diff[1] + diff[2] + diff[3] + diff[4];
-            done      <= 1;
-            nextState <= FINISH;
-        end
-        default:
-            nextState <= IDLE;
-        endcase
-    end
+module MpuDet4(
+	input signed [`arrayOf(4)] row1,
+    input signed [`arrayOf(4)] row2,
+	input signed [`arrayOf(4)] row3,
+	input signed [`arrayOf(4)] row4,
+
+	input clock,
+
+	output reg signed [31:0] result
+);
+
+	reg [31:0] diagonals[0:3];
+
+	integer i = 0;
+
+	always @(posedge clock) begin
+		if (i < 4) begin
+			diagonals[i] <= row1[i*8 +: 8] * Det3(
+				{row2[`atCol(i+1 % 4) +: 8], row2[`atCol(i+2 % 4) +: 8], row2[`atCol(i+3 % 4) +: 8]},
+				{row3[`atCol(i+1 % 4) +: 8], row3[`atCol(i+2 % 4) +: 8], row3[`atCol(i+3 % 4) +: 8]}, 
+				{row4[`atCol(i+1 % 4) +: 8], row4[`atCol(i+2 % 4) +: 8], row4[`atCol(i+3 % 4) +: 8]});
+
+			i <= i + 1;
+		end else begin
+			result <= diagonals[0] - diagonals[1] + diagonals[2] - diagonals[3];
+		end
+	end
+
+	function [31:0] Det3;
+		input signed [`arrayOf(3)] row1;
+		input signed [`arrayOf(3)] row2;
+		input signed [`arrayOf(3)] row3;
+
+		begin
+			// a b c
+			// d e f
+			// g h i
+
+			Det3 = row1[0*8 +: 8] * row2[1*8 +: 8] * row3[2*8 +: 8]
+				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
+				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];
+		end
+
+	endfunction
+
+endmodule
+
+
+module MpuDet5(
+	input signed [`arrayOf(5)] row1,
+   input signed [`arrayOf(5)] row2,
+	input signed [`arrayOf(5)] row3,
+	input signed [`arrayOf(5)] row4,
+	input signed [`arrayOf(5)] row5,
+	
+	input clock,
+
+	output reg signed [31:0] result
+);
+
+	reg [31:0] diagonals[0:4];
+
+	integer i = 0;
+
+	always @(posedge clock) begin
+		if (i < 5) begin
+			diagonals[i] <= row1[i*8 +: 8] * Det4(
+				{row2[`atCol(i+1 % 5) +: 8], row2[`atCol(i+2 % 5) +: 8], row2[`atCol(i+3 % 5) +: 8], row2[`atCol(i+4 % 5) +: 8]},
+				{row3[`atCol(i+1 % 5) +: 8], row3[`atCol(i+2 % 5) +: 8], row3[`atCol(i+3 % 5) +: 8], row3[`atCol(i+4 % 5) +: 8]}, 
+				{row4[`atCol(i+1 % 5) +: 8], row4[`atCol(i+2 % 5) +: 8], row4[`atCol(i+3 % 5) +: 8], row4[`atCol(i+4 % 5) +: 8]},
+				{row5[`atCol(i+1 % 5) +: 8], row5[`atCol(i+2 % 5) +: 8], row5[`atCol(i+3 % 5) +: 8], row5[`atCol(i+4 % 5) +: 8]});
+
+			i <= i + 1;
+		end else begin
+			result <= diagonals[0] - diagonals[1] + diagonals[2] - diagonals[3] + diagonals[4];
+		end
+	end
+	
+	function [31:0] Det3;
+		input signed [`arrayOf(3)] row1;
+		input signed [`arrayOf(3)] row2;
+		input signed [`arrayOf(3)] row3;
+
+		begin
+			// a b c
+			// d e f
+			// g h i
+
+			Det3 = row1[0*8 +: 8] * row2[1*8 +: 8] * row3[2*8 +: 8]
+				- row1[1*8 +: 8] * row2[2*8 +: 8] * row3[0*8 +: 8]
+				+ row1[2*8 +: 8] * row2[0*8 +: 8] * row3[1*8 +: 8];
+		end
+
+	endfunction
+
+	function [31:0] Det4;
+		input signed [`arrayOf(4)] row1;
+		input signed [`arrayOf(4)] row2;
+		input signed [`arrayOf(4)] row3;
+		input signed [`arrayOf(4)] row4;
+
+		begin
+			// a b c d
+			// e f g h
+			// i j k l
+			// m n o p
+
+			Det4 = row1[0*8 +: 8] * Det3(
+					{row2[`atCol(1) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8]},
+					{row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8]}, 
+					{row4[`atCol(1) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8]})
+				- row1[1*8 +: 8] * Det3(
+					{row2[`atCol(0) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8]},
+					{row3[`atCol(0) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8]}, 
+					{row4[`atCol(0) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8]})
+				+ row1[2*8 +: 8] * Det3(
+					{row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(3) +: 8]},
+					{row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(3) +: 8]}, 
+					{row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(3) +: 8]})
+				- row1[3*8 +: 8] * Det3(
+					{row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(2) +: 8]},
+					{row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(2) +: 8]}, 
+					{row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(2) +: 8]});
+		end
+	endfunction
+
 endmodule

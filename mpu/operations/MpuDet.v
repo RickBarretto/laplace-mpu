@@ -15,25 +15,12 @@ module MpuDet (
 
     output reg signed [`INTEGER_8] result
 );
-
-    wire signed [`ROW] row1;
-    wire signed [`ROW] row2;
-    wire signed [`ROW] row3;
-    wire signed [`ROW] row4;
-    wire signed [`ROW] row5;
-
-    assign row1 = matrix[`at(0, 0) +: (8*5)];
-    assign row2 = matrix[`at(1, 0) +: (8*5)];
-    assign row3 = matrix[`at(2, 0) +: (8*5)];
-    assign row4 = matrix[`at(3, 0) +: (8*5)];
-    assign row5 = matrix[`at(4, 0) +: (8*5)];
 	 
 	 wire signed [`INTEGER_8] det4;
 	 wire signed [`INTEGER_8] det5;
 
-	MpuDet4 mpud4(row1, row2, row3, row4, clock, det4);
+	MpuDet4 mpud4(matrix, clock, det4);
 	MpuDet5 mpud5(row1, row2, row3, row4, row5, clock, det5);
-
 
 	always @(posedge clock) begin
 		if (size == 1) result <= matrix[0 +: 8];
@@ -80,11 +67,7 @@ module MpuDet (
 endmodule
 
 module MpuDet4(
-	input signed [`arrayOf(5)] row1,
-    input signed [`arrayOf(5)] row2,
-	input signed [`arrayOf(5)] row3,
-	input signed [`arrayOf(5)] row4,
-
+	signed [`MATRIX_5x5] matrix,
 	input clock,
 
 	output reg signed [`INTEGER_8] result
@@ -96,10 +79,11 @@ module MpuDet4(
 
 	always @(posedge clock) begin
 		if (i < 4) begin
-			diagonals[i] <= row1[i*8 +: 8] * Det3(
-				row2[`atCol(i+1 % 4) +: 8], row2[`atCol(i+2 % 4) +: 8], row2[`atCol(i+3 % 4) +: 8],
-				row3[`atCol(i+1 % 4) +: 8], row3[`atCol(i+2 % 4) +: 8], row3[`atCol(i+3 % 4) +: 8], 
-				row4[`atCol(i+1 % 4) +: 8], row4[`atCol(i+2 % 4) +: 8], row4[`atCol(i+3 % 4) +: 8]);
+			diagonals[i] <= `mat(0, i) * Det3(
+				`mat(1, (i+1)%4), `mat(1, (i+2)%4), `mat(1, (i+3)%4),
+				`mat(2, (i+1)%4), `mat(2, (i+2)%4), `mat(2, (i+3)%4),
+				`mat(3, (i+1)%4), `mat(3, (i+2)%4), `mat(3, (i+3)%4)
+			);
 
 			i <= i + 1;
 		end else begin

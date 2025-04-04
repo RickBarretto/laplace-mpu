@@ -107,28 +107,23 @@ endmodule
 
 
 module MpuDet5(
-	input signed [`arrayOf(5)] row1,
-   input signed [`arrayOf(5)] row2,
-	input signed [`arrayOf(5)] row3,
-	input signed [`arrayOf(5)] row4,
-	input signed [`arrayOf(5)] row5,
-	
+	input signed [`MATRIX_5x5] matrix,	
 	input clock,
 
 	output reg signed [`INTEGER_8] result
 );
 
 	reg [`INTEGER_8] diagonals[0:4];
-
 	integer i = 0;
 
 	always @(posedge clock) begin
 		if (i < 5) begin
-			diagonals[i] <= row1[i*8 +: 8] * Det4(
-				{row2[`atCol(i+1 % 5) +: 8], row2[`atCol(i+2 % 5) +: 8], row2[`atCol(i+3 % 5) +: 8], row2[`atCol(i+4 % 5) +: 8]},
-				{row3[`atCol(i+1 % 5) +: 8], row3[`atCol(i+2 % 5) +: 8], row3[`atCol(i+3 % 5) +: 8], row3[`atCol(i+4 % 5) +: 8]}, 
-				{row4[`atCol(i+1 % 5) +: 8], row4[`atCol(i+2 % 5) +: 8], row4[`atCol(i+3 % 5) +: 8], row4[`atCol(i+4 % 5) +: 8]},
-				{row5[`atCol(i+1 % 5) +: 8], row5[`atCol(i+2 % 5) +: 8], row5[`atCol(i+3 % 5) +: 8], row5[`atCol(i+4 % 5) +: 8]});
+			diagonals[i] <= `mat(0, i) * Det4(
+				`mat(1, (i+1)%5), `mat(1, (i+2)%5), `mat(1, (i+3)%5), `mat(1, (i+4)%5),
+				`mat(2, (i+1)%5), `mat(2, (i+2)%5), `mat(2, (i+3)%5), `mat(2, (i+4)%5),
+				`mat(3, (i+1)%5), `mat(3, (i+2)%5), `mat(3, (i+3)%5), `mat(3, (i+4)%5),
+				`mat(3, (i+1)%5), `mat(3, (i+2)%5), `mat(3, (i+3)%5), `mat(3, (i+4)%5)
+			);
 
 			i <= i + 1;
 		end else begin
@@ -149,34 +144,32 @@ module MpuDet5(
 	endfunction
 
 	function [`INTEGER_8] Det4;
-		input signed [`arrayOf(4)] row1;
-		input signed [`arrayOf(4)] row2;
-		input signed [`arrayOf(4)] row3;
-		input signed [`arrayOf(4)] row4;
+		input [`INTEGER_8] a11, a12, a13, a14;
+		input [`INTEGER_8] a21, a22, a23, a24;
+		input [`INTEGER_8] a31, a32, a33, a34;
+		input [`INTEGER_8] a41, a42, a43, a44;
 
 		begin
-			// a b c d
-			// e f g h
-			// i j k l
-			// m n o p
-
-			Det4 = row1[0*8 +: 8] * Det3(
-					row2[`atCol(1) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8],
-					row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8], 
-					row4[`atCol(1) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8])
-				- row1[1*8 +: 8] * Det3(
-					row2[`atCol(0) +: 8], row2[`atCol(2) +: 8], row2[`atCol(3) +: 8],
-					row3[`atCol(0) +: 8], row3[`atCol(2) +: 8], row3[`atCol(3) +: 8], 
-					row4[`atCol(0) +: 8], row4[`atCol(2) +: 8], row4[`atCol(3) +: 8])
-				+ row1[2*8 +: 8] * Det3(
-					row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(3) +: 8],
-					row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(3) +: 8], 
-					row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(3) +: 8])
-				- row1[3*8 +: 8] * Det3(
-					row2[`atCol(0) +: 8], row2[`atCol(1) +: 8], row2[`atCol(2) +: 8],
-					row3[`atCol(0) +: 8], row3[`atCol(1) +: 8], row3[`atCol(2) +: 8], 
-					row4[`atCol(0) +: 8], row4[`atCol(1) +: 8], row4[`atCol(2) +: 8]);
+			Det4 = a11 * Det3(
+					a22, a23, a24,
+					a32, a33, a34,
+					a42, a43, a44
+				)
+				- a12 * Det3(
+					a21, a23, a24,
+					a31, a33, a34,
+					a41, a43, a44
+				)
+				+ a13 * Det3(
+					a21, a22, a24,
+					a31, a32, a34,
+					a41, a42, a44
+				)
+				- a14 * Det3(
+					a21, a22, a23,
+					a31, a32, a33,
+					a41, a42, a43
+				);
 		end
 	endfunction
-
 endmodule

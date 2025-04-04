@@ -67,7 +67,7 @@ module MpuDet (
 endmodule
 
 module MpuDet4(
-	signed [`MATRIX_5x5] matrix,
+	input signed [`MATRIX_5x5] matrix,
 	input clock,
 
 	output reg signed [`INTEGER_8] result

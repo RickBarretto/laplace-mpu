@@ -3,7 +3,7 @@
 `define arrayOf(n) 0:((8*n)-1)
 `define MATRIX_5x5  0:(8*25-1)
 `define INTEGER_8   7:0
-`define at(row, col) (8 * (col + 5*row))
+`define at(row, col) ((row * (8 * 5)) + (col * 8))
 `define atCol(col) (8 * col)
 
 

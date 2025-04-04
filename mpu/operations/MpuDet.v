@@ -51,10 +51,10 @@ module MpuDet (
 endmodule
 
 module MpuDet4(
-	input signed [`arrayOf(4)] row1,
-    input signed [`arrayOf(4)] row2,
-	input signed [`arrayOf(4)] row3,
-	input signed [`arrayOf(4)] row4,
+	input signed [`arrayOf(5)] row1,
+    input signed [`arrayOf(5)] row2,
+	input signed [`arrayOf(5)] row3,
+	input signed [`arrayOf(5)] row4,
 
 	input clock,
 

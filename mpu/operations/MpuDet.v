@@ -16,11 +16,11 @@ module MpuDet (
     output reg signed [`INTEGER_8] result
 );
 	 
-	 wire signed [`INTEGER_8] det4;
-	 wire signed [`INTEGER_8] det5;
+	wire signed [`INTEGER_8] det4;
+	wire signed [`INTEGER_8] det5;
 
 	MpuDet4 mpud4(matrix, clock, det4);
-	MpuDet5 mpud5(row1, row2, row3, row4, row5, clock, det5);
+	MpuDet5 mpud5(matrix, clock, det5);
 
 	always @(posedge clock) begin
 		if (size == 1) result <= matrix[0 +: 8];
@@ -74,7 +74,6 @@ module MpuDet4(
 );
 
 	reg [`INTEGER_8] diagonals[0:3];
-
 	integer i = 0;
 
 	always @(posedge clock) begin

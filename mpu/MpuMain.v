@@ -3,7 +3,8 @@
 module MpuMain (
 	input button, 
 	input [2:0] ops,
-	input clock, 
+	input clock,
+	input size2_lever, 
 	
 	output LED_0, 
 	output LED_1, 
@@ -31,7 +32,7 @@ module MpuMain (
 		ops,
 		Matrix_A,
 		Matrix_B,
-		8'd5,
+		(size2_lever)? 8'd2 : 8'd3,
 		Matrix_B[0 +: 8],
 
 		clock,

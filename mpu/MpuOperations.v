@@ -19,14 +19,14 @@ module MpuOperations(
 	 wire signed [`MATRIX_5x5] opp;
 	 wire signed [`MATRIX_5x5] trans;
 	 wire signed [`MATRIX_5x5] mul;
-	 wire signed [`INTEGER_8] determinant;
+	 wire signed [`MATRIX_5x5] determinant;
 	 
 	 MpuAdd(matrix_a, matrix_b, add);
 	 MpuSub(matrix_a, matrix_b, sub);
 	 MpuIntMul(matrix_a, factor, imul);
 	 MpuOpposite(matrix_a, opp);
 	 MpuTranspose(matrix_a, trans);
-	 MpuDet(matrix_a, size, clock, determinant);
+	 MpuDet(matrix_a, size, determinant);
 	 MpuMul(matrix_a, matrix_b, size, clock, mul);
 
     always @(posedge clock) begin

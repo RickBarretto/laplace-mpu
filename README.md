@@ -4,7 +4,7 @@ Este projeto tem como objetivo o desenvolvimento de um **coprocessador aritméti
 
 A proposta é explorar paralelismo e arquitetura pipeline para tornar as operações matriciais mais eficientes em sistemas embarcados.
 
-### Requisitos atendidos:
+**Requisitos atendidos**:
 - Código em Verilog;
 - Utiliza apenas componentes da placa DE1-SoC;
 - Operações com matrizes quadradas até 3x3;
@@ -18,11 +18,10 @@ A proposta é explorar paralelismo e arquitetura pipeline para tornar as operaç
   - Matriz oposta
 - Cada elemento da matriz tem 8 bits (sinalizados);
 - Entrada e saída por barramento simples de controle;
-- Compatibilidade com processador ARM (HPS);
-- Projeto comentado e com Makefile de compilação.
+- Compatibilidade com processador ARM (HPS).
 
 
-## 👥Equipe: <br>
+## 👥Equipe <br>
 * Cláudio Daniel Figueredo Peruna <br>
 * Paulo Gabriel da Rocha Costa Silva  <br>
 * Paulo Henrique Barreto Dantas <br>
@@ -33,13 +32,12 @@ A proposta é explorar paralelismo e arquitetura pipeline para tornar as operaç
 - [Descrição das Operações](#operações-implementadas)
 - [Equipamentos e Softwares Utilizados](#equipamentos-e-softwares-utilizados)
 - [LEs, LABs e Pinos](#les-labs-e-pinos)
-- [Testes Realizados](#testes-realizados)
 - [Execução do Projeto](#execução-do-projeto)
 - [Conclusão](#conclusão)
 
 ---
 
-### 🧠 Arquitetura do Sistema
+## 🧠 Arquitetura do Sistema
 
 O módulo principal, `main`, atua como o processador central e **controlador da máquina de estados**. Ele instancia o módulo `mpoperations`, que é responsável pela execução das operações aritméticas. O `main` também gerencia a leitura e escrita de dados da memória da FPGA, além de coordenar o fluxo dos estados lógicos.
 
@@ -65,7 +63,7 @@ Além disso, para operações complexas como **multiplicação matricial**, foi 
 
 ---
 
-### ➕➖✖️ Descrição das Operações
+## ➕➖✖️ Descrição das Operações
 
 As operações aritméticas implementadas no módulo `mpoperations.v` são controladas por um sinal de **opcode de 3 bits**, que define qual operação será executada. O módulo recebe como entrada duas matrizes (A e B), codificadas como vetores de 200 bits (25 elementos de 8 bits cada), além de parâmetros como `factor`, `size` e `clock`. O resultado é retornado também em um vetor de 200 bits.
 
@@ -134,7 +132,7 @@ Todas as operações são implementadas dentro de um bloco `always` sensível à
 
 ---
 
-### 🖥️ Equipamentos e Softwares Utilizados
+## 🖥️ Equipamentos e Softwares Utilizados
 
 Para o desenvolvimento e execução do projeto do coprocessador aritmético especializado em multiplicação matricial, utilizamos os seguintes recursos de hardware e software:
 
@@ -154,7 +152,7 @@ Para o desenvolvimento e execução do projeto do coprocessador aritmético espe
   - A transferência do projeto compilado para a placa DE1-SoC foi feita via **interface JTAG**, utilizando o **Programmer** integrado ao Quartus Prime.
 ---
 
-### 🔌 LEs, LABs e Pinos
+## 🔌 LEs, LABs e Pinos
 
 O projeto utilizou recursos da placa **DE1-SoC** de forma eficiente, com baixo consumo de lógica e pinos. Os principais pontos são:
 
@@ -186,7 +184,7 @@ O projeto utilizou recursos da placa **DE1-SoC** de forma eficiente, com baixo c
 
 ---
 
-### 🧪 Testes Realizados
+<!-- ## 🧪 Testes Realizados -->
 
 <!-- > Descreva:
 - Como os testes foram feitos (ex: entrada de dados via chave, visualização via LEDs, console UART, etc);
@@ -194,19 +192,57 @@ O projeto utilizou recursos da placa **DE1-SoC** de forma eficiente, com baixo c
 - Comportamentos esperados vs. observados;
 - Screenshots, simulações ou fotos da execução na FPGA são bem-vindas. -->
 
+
+## ▶️ Execução do Projeto
+
+Para compilar e executar o projeto na plataforma DE1-SoC utilizando o Quartus Prime Lite, siga os seguintes passos:
+
+### 📦 1. Compilação do Projeto
+1. Abra o Quartus Prime Lite Edition.
+2. No menu superior, vá até `File > Open Project` e selecione o projeto principal (`MpuMain.qpf`).
+3. Clique no botão de **Start Compilation** ou acesse pelo menu: `Processing > Start Compilation`.
+4. Aguarde até o final da compilação. O processo pode levar alguns minutos.
+
+### 💾 2. Gravação na FPGA
+1. Conecte a placa DE1-SoC ao computador via cabo USB-Blaster.
+2. Vá em `Tools > Programmer`.
+3. No campo “Hardware Setup…”, selecione `USB-Blaster [USB-0]`.
+4. Verifique se o `.sof` gerado está corretamente carregado.
+5. Clique em “Start” para gravar o projeto na FPGA.
+
+### 🧠 3. Inserção de Dados na Memória Interna
+1. Após a programação da FPGA, vá em `Tools > In-System Memory Content Editor`.
+2. Com o JTAG configurado, selecione a memória instanciada no projeto.
+3. Insira os valores correspondentes à matriz A e matriz B manualmente na memória (conforme o endereço esperado pela FSM).
+4. A memória possui 256 bits de largura e 4096 de profundidade, com modo de acesso `Read/Write`.
+
+### 🎮 4. Execução na Placa
+A interação com o sistema é feita diretamente pelos elementos físicos da placa:
+
+- **Chaves (SW):**
+  - SW[2:0] → Código da operação (opcode):
+    - `000`: Adição
+    - `001`: Subtração
+    - `010`: Multiplicação por escalar
+    - `011`: Matriz oposta
+    - `100`: Transposta
+    - `101`: Determinante
+    - `110`: Multiplicação matricial
+  - SW[3] → Define o tamanho da matriz (`size`)
+  
+- **Botão (KEY[0]):**
+  - Usado como **clock manual** para avançar os estados da máquina de controle.
+  - Cada pressionamento do botão representa uma borda de subida do clock.
+
+### 📤 5. Visualização do Resultado
+Após a execução da operação, o resultado será gravado de volta na memória. Para visualizar:
+1. Acesse novamente o **In-System Memory Content Editor**.
+2. Leia os valores atualizados nos endereços de saída definidos pela FSM.
+3. Interprete os valores como matriz 5x5 (caso completo), considerando 8 bits por elemento.
+
 ---
 
-### ▶️ Execução do Projeto
-
-<!-- > Explique como rodar:
-- Como compilar com Quartus;
-- Como fazer a gravação na FPGA;
-- Como interagir com as operações via hardware (chaves, botões);
-- Passos para iniciar o sistema, exemplo de uso prático. -->
-
----
-
-### ✅ Conclusão
+## ✅ Conclusão
 
 O desenvolvimento deste coprocessador aritmético especializado em multiplicação matricial proporcionou uma experiência prática valiosa na aplicação de conceitos de circuitos digitais e arquitetura de computadores. Através da linguagem Verilog, foi possível estruturar uma solução modular e eficiente, utilizando máquinas de estados finitos (FSM) para controle sequencial e barramentos simples para comunicação com a memória da FPGA.
 
@@ -217,7 +253,7 @@ Durante a construção do projeto, foi possível aprender e aplicar com profundi
 - A implementação de operações paralelas e arquitetura em pipeline, otimizando a multiplicação de matrizes em múltiplos ciclos de clock;
 - A criação de funções internas no Verilog (`function Det2` e `Det3`) para operações matemáticas reutilizáveis.
 
-Entre as dificuldades enfrentadas, destacam-se o mapeamento correto dos dados na memória e a sincronização entre leitura, processamento e escrita — especialmente durante o controle da FSM. Essas dificuldades foram superadas com testes incrementais, análise das transições de estados e uso de simulações no ModelSim.
+Entre as dificuldades enfrentadas, destacam-se o mapeamento correto dos dados na memória e a sincronização entre leitura, processamento e escrita — especialmente durante o controle da FSM. Essas dificuldades foram superadas com testes incrementais, análise das transições de estados.
 
 Todos os requisitos definidos no enunciado do projeto foram atendidos, com exceção do cálculo da determinante para matrizes de tamanho 4x4 e 5x5. As operações implementadas foram:
 

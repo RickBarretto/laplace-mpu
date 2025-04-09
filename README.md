@@ -7,7 +7,7 @@ A proposta é explorar paralelismo e arquitetura pipeline para tornar as operaç
 **Requisitos atendidos**:
 - Código em Verilog;
 - Utiliza apenas componentes da placa DE1-SoC;
-- Operações com matrizes quadradas até 3x3;
+- Operações com matrizes quadradas até 5x5 (exceto determinante);
 - Operações implementadas:
   - Adição
   - Subtração
@@ -17,8 +17,7 @@ A proposta é explorar paralelismo e arquitetura pipeline para tornar as operaç
   - Transposta
   - Matriz oposta
 - Cada elemento da matriz tem 8 bits (sinalizados);
-- Entrada e saída por barramento simples de controle;
-- Compatibilidade com processador ARM (HPS).
+- Entrada e saída por barramento simples de controle.
 
 
 ## 👥Equipe <br>
@@ -39,9 +38,9 @@ A proposta é explorar paralelismo e arquitetura pipeline para tornar as operaç
 
 ## 🧠 Arquitetura do Sistema
 
-O módulo principal, `main`, atua como o processador central e **controlador da máquina de estados**. Ele instancia o módulo `mpoperations`, que é responsável pela execução das operações aritméticas. O `main` também gerencia a leitura e escrita de dados da memória da FPGA, além de coordenar o fluxo dos estados lógicos.
+O módulo principal, `main`, atua como o processador central e **controlador da máquina de estados**. Ele instancia o módulo `MpuOperations`, que é responsável pela execução das operações aritméticas. O `main` também gerencia a leitura e escrita de dados da memória da FPGA, além de coordenar o fluxo dos estados lógicos.
 
-Dentro do módulo `mpoperations`, estão implementadas as sete operações possíveis: adição, subtração, multiplicação por escalar, matriz oposta, transposição, determinante e multiplicação matricial. A seleção da operação é feita via um campo de **opcode de 3 bits**, passado pelas chaves da placa.
+Dentro do módulo `MpuOperations`, estão implementadas as sete operações possíveis: adição, subtração, multiplicação por escalar, matriz oposta, transposição, determinante e multiplicação matricial. A seleção da operação é feita via um campo de **opcode de 3 bits**, passado pelas chaves da placa.
 
 As matrizes A e B são representadas como vetores de 200 bits (25 elementos de 8 bits), e recebidas como entradas junto com o parâmetro `size` (para definir o tamanho da matriz quadrada) e `factor` (utilizado na multiplicação por escalar e pode ser um número com sinal). O resultado da operação também é retornado em um vetor de 200 bits, mesmo em operações como determinante que produzem um único valor.
 
@@ -59,13 +58,13 @@ O controle das operações é realizado via **interface física da placa DE1-SoC
 
 A **memória** é acessada por meio de um módulo separado, instanciado no `main`. O controle de leitura e escrita é feito com sinais de **`read_enable` e `write_enable`**, definidos em estados específicos da FSM. Durante os estados de leitura, o endereço é ajustado para carregar os dados das matrizes A e B. Já nos estados de escrita, o sinal `write_enable` é ativado para armazenar o resultado da operação no endereço de saída definido.
 
-Além disso, para operações complexas como **multiplicação matricial**, foi implementado **pipeline com cinco ciclos de clock**, otimizando o desempenho com processamento linha a linha. Já para o **determinante**, foram implementadas funções auxiliares para matrizes 2x2 e 3x3, com lógica condicional para decidir qual aplicar, de acordo com o valor de `size`.
+Além disso, a multiplicação matricial é realizada em cinco ciclos de clock, processando uma linha por ciclo, sem uso de pipeline. Já para o **determinante**, foram implementadas funções auxiliares para matrizes 2x2 e 3x3, com lógica condicional para decidir qual aplicar, de acordo com o valor de `size`.
 
 ---
 
 ## ➕➖✖️ Descrição das Operações
 
-As operações aritméticas implementadas no módulo `mpoperations.v` são controladas por um sinal de **opcode de 3 bits**, que define qual operação será executada. O módulo recebe como entrada duas matrizes (A e B), codificadas como vetores de 200 bits (25 elementos de 8 bits cada), além de parâmetros como `factor`, `size` e `clock`. O resultado é retornado também em um vetor de 200 bits.
+As operações aritméticas implementadas no módulo `MpuOperations.v` são controladas por um sinal de **opcode de 3 bits**, que define qual operação será executada. O módulo recebe como entrada duas matrizes (A e B), codificadas como vetores de 200 bits (25 elementos de 8 bits cada), além de parâmetros como `factor`, `size` e `clock`. O resultado é retornado também em um vetor de 200 bits.
 
 #### 🎯 Mapeamento de Opcode
 - `000` – Adição de Matrizes  
@@ -121,14 +120,13 @@ Todas as operações são implementadas dentro de um bloco `always` sensível à
 #### Entradas Utilizadas por Operação
 | Operação                   | Matriz A | Matriz B | Factor | Size | Clock |
 |---------------------------|----------|----------|--------|------|-------|
-| Adição                    | ✅       | ✅       | ❌     | ❌   | ✅    |
-| Subtração                 | ✅       | ✅       | ❌     | ❌   | ✅    |
-| Multiplicação por Escalar | ✅       | ❌       | ✅     | ❌   | ✅    |
-| Oposta                    | ✅       | ❌       | ❌     | ❌   | ✅    |
-| Transposta                | ✅       | ❌       | ❌     | ❌   | ✅    |
-| Determinante              | ✅       | ❌       | ❌     | ✅   | ✅    |
+| Adição                    | ✅       | ✅       | ❌     | ❌   | ❌    |
+| Subtração                 | ✅       | ✅       | ❌     | ❌   | ❌    |
+| Multiplicação por Escalar | ✅       | ❌       | ✅     | ❌   | ❌    |
+| Oposta                    | ✅       | ❌       | ❌     | ❌   | ❌    |
+| Transposta                | ✅       | ❌       | ❌     | ❌   | ❌    |
+| Determinante              | ✅       | ❌       | ❌     | ✅   | ❌    |
 | Multiplicação Matricial   | ✅       | ✅       | ❌     | ❌   | ✅    |
-
 
 ---
 
@@ -142,7 +140,7 @@ Para o desenvolvimento e execução do projeto do coprocessador aritmético espe
   - **Quartus Prime**: Ambiente principal para **desenvolvimento, síntese e programação** dos módulos em Verilog.
 
 - **Linguagens Utilizadas**:
-  - **Verilog HDL**: Para desenvolvimento do coprocessador, incluindo o módulo `mpoperations.v`, FSM e controle de memória.
+  - **Verilog HDL**: Para desenvolvimento do coprocessador, incluindo o módulo `MpuOperations.v`, FSM e controle de memória.
   - **C**: Para interações com o HPS.
 
 - **Ambiente de Desenvolvimento**:
@@ -183,15 +181,6 @@ O projeto utilizou recursos da placa **DE1-SoC** de forma eficiente, com baixo c
 ![Relatório de utilização da FPGA](./img/foto_le.png)
 
 ---
-
-<!-- ## 🧪 Testes Realizados -->
-
-<!-- > Descreva:
-- Como os testes foram feitos (ex: entrada de dados via chave, visualização via LEDs, console UART, etc);
-- Que tipo de testes foram executados para cada operação;
-- Comportamentos esperados vs. observados;
-- Screenshots, simulações ou fotos da execução na FPGA são bem-vindas. -->
-
 
 ## ▶️ Execução do Projeto
 
@@ -270,7 +259,7 @@ Outros requisitos também foram contemplados:
 - ✅ Representação dos elementos com 8 bits  
 - ✅ Paralelismo e pipeline na multiplicação  
 - ✅ Comunicação via barramento simples  
-- ✅ Interface compatível com o processador ARM (HPS)  
+- ❌ Comunicação com o processador ARM (HPS) não foi implementada
 
 Como ponto de melhoria, destaca-se a possibilidade futura de implementar o cálculo da determinante para matrizes de ordem 4 e 5, utilizando expansão por cofatores ou outras técnicas mais avançadas. Além disso, seria interessante explorar a comunicação direta com o HPS via Avalon para envio e leitura dos dados em tempo real.
 

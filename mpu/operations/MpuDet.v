@@ -1,10 +1,10 @@
-`define i8(x) 8'sd``x
-`define ROW 0:((8*5)-1)
-`define arrayOf(n) 0:((8*n)-1)
-`define MATRIX_5x5  (8*25-1):0
-`define INTEGER_8   7:0
-`define at(row, col) ((row * (8 * 5)) + (col * 8))
-`define mat(row, col) matrix[`at(row, col) +: 8]
+`define i8(x) 8'sd``x								/// Defines an signed integer of 8-bit
+`define ROW 0:((8*5)-1)								/// Defines a 5 8-bit elements row
+`define arrayOf(n) 0:((8*n)-1)						/// Defines an array of n 8-bit elements
+`define MATRIX_5x5  (8*25-1):0						/// Defines a 5x5 matrix of 8-bit element each as a vector
+`define INTEGER_8   7:0								/// Defines a 8-bit integer
+`define at(row, col) ((row * (8 * 5)) + (col * 8))	/// Access each 8-bit element of some 5x5 matrix
+`define mat(row, col) matrix[`at(row, col) +: 8]	/// 8-bit element of the 5x5 matrix
 `define atCol(col) (8 * col)
 
 
@@ -14,6 +14,9 @@ module MpuDet (
 
     output signed [`INTEGER_8] result
 );
+
+	/// This code uses `mat(row, column)` macro to get the element of the matrix
+	/// and pass it into the correspondent function.
 
 	assign result = 
 		(size == 1)? 
@@ -32,6 +35,7 @@ module MpuDet (
 		: 8'sd0;
 
 	function [`INTEGER_8] Det2;
+		/// Function that calculates the Determinant of a 2x2 matrix
 		input [`INTEGER_8] a11, a12;
 		input [`INTEGER_8] a21, a22;
 
@@ -41,6 +45,7 @@ module MpuDet (
 	endfunction
 
 	function [`INTEGER_8] Det3;
+		/// Function that calculates the Determinant of a 3x3 matrix
 		input [`INTEGER_8] a11, a12, a13;
 		input [`INTEGER_8] a21, a22, a23;
 		input [`INTEGER_8] a31, a32, a33;

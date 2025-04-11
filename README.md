@@ -2,7 +2,7 @@
 
 Este projeto tem como objetivo o desenvolvimento de um **coprocessador aritmético especializado em multiplicação matricial**. Ele foi implementado em linguagem Verilog em uma placa FPGA DE1-SoC.
 
-A proposta é explorar paralelismo e arquitetura pipeline para tornar as operações matriciais mais eficientes em sistemas embarcados.
+A proposta é explorar paralelismo e arquitetura para tornar as operações matriciais mais eficientes em sistemas embarcados.
 
 **Requisitos atendidos**:
 - Código em Verilog;
@@ -239,7 +239,7 @@ Durante a construção do projeto, foi possível aprender e aplicar com profundi
 - A manipulação de dados em formato de vetor binário (200 bits representando 25 elementos de 8 bits);
 - O uso de blocos `generate` para simplificar operações matriciais em larga escala;
 - O controle da memória da FPGA utilizando sinais de `read_enable`, `write_enable` e endereçamento sequencial;
-- A implementação de operações paralelas e arquitetura em pipeline, otimizando a multiplicação de matrizes em múltiplos ciclos de clock;
+- A implementação de operações paralelas e arquitetura, otimizando a multiplicação de matrizes em múltiplos ciclos de clock;
 - A criação de funções internas no Verilog (`function Det2` e `Det3`) para operações matemáticas reutilizáveis.
 
 Entre as dificuldades enfrentadas, destacam-se o mapeamento correto dos dados na memória e a sincronização entre leitura, processamento e escrita — especialmente durante o controle da FSM. Essas dificuldades foram superadas com testes incrementais, análise das transições de estados.
@@ -257,7 +257,7 @@ Todos os requisitos definidos no enunciado do projeto foram atendidos, com exce�
 Outros requisitos também foram contemplados:
 - ✅ Código em Verilog utilizando apenas os recursos da DE1-SoC  
 - ✅ Representação dos elementos com 8 bits  
-- ✅ Paralelismo e pipeline na multiplicação  
+- ✅ Paralelismo na multiplicação  
 - ✅ Comunicação via barramento simples  
 - ❌ Comunicação com o processador ARM (HPS) não foi implementada
 

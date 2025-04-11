@@ -13,6 +13,14 @@ module MpuMul (
     output reg signed [`MATRIX_5x5] result   // Flattened 5x5 result matrix (each element 16 bits)
 );
     
+	/// This module works with 5 cycles of clock for operate a matrix of any size,
+	/// this is agnostic to size, and will process 5 elements per cycle.
+	/// Since the matrix is 5x5, this will take 5 cycles to complete the whole task.
+	///
+	/// Note
+	/// ----
+	/// `row` works as a counter and will be reset when reach the higher state.
+
 	 reg [`INTEGER_8] row;
 	 
     always @(posedge clock) begin

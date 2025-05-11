@@ -9,9 +9,11 @@
  * - r3: Temporary register
  *
  * Example:
+ *   ```
  *   mov r0, #3             @ Matrix size 3x3
  *   bl mpu_determinant     @ Call function
  *   cmp r0, #0             @ Check for success
+ *   ```
  */
 
 #include "_mpu_constants.s"

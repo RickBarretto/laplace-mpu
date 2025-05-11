@@ -53,8 +53,8 @@ load_matrix_b:
     add r5, r0, r5              @ r5 = mapped_base + offset
 
 load_context:
-    ldr r6, [r2]                @ Load HPS base address from r1
-    mov r7, r3                  @ Load matrix size (number of elements) from r2
+    ldr r6, [r2]                @ Load HPS base address from r2
+    mov r7, r3                  @ Load matrix size (number of elements) from r3
 
 loop:
     cmp r7, #0                  @ Check if all elements are stored

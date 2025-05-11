@@ -4,16 +4,21 @@
  * Triggers the MPU to perform a matrix determinant operation for a given size (1-5).
  * Returns 0 on success, 1 if size is out of range.
  *
+ * Uses the mapped MPU base address for register access.
+ *
  * Registers used:
  * - r0: Matrix size (input), also used for return value (0=success, 1=error)
+ * - r1: Holds mapped base address (must be set by caller)
  * - r3: Temporary register
  *
  * Example:
- *   ```
- *   mov r0, #3             @ Matrix size 3x3
- *   bl mpu_determinant     @ Call function
- *   cmp r0, #0             @ Check for success
- *   ```
+ *   bl mpu_map_base_address   @ Get mapped base address in r0
+ *   mov r1, r0                @ Save mapped address
+ *   mov r0, #3                @ Matrix size 3x3
+ *   bl mpu_determinant        @ Call function
+ *   cmp r0, #0                @ Check for success
+ *
+ * Note: Assumes r1 contains the mapped base address.
  */
 
 #include "_mpu_constants.s"
@@ -31,11 +36,11 @@ mpu_determinant:
     cmp r0, #5
     bgt .error
 
-    @ Store size
+    @ Store size using mapped base address in r1
     ldr r3, =MPU_SIZE
+    add r3, r1, r3           @ r3 = mapped_base + offset
     str r0, [r3]
 
-    @ Call determinant operation
     mov r0, #OP_DET
     bl _mpu_call
 

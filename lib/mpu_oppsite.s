@@ -1,14 +1,10 @@
 /*
  * Function: mpu_oppsite
  * -----------------------
- * Triggers the FPGA to perform an opposite (negation) matrix operation by passing the appropriate opcode.
+ * Triggers the FPGA to perform an opposite (negation) matrix operation.
  *
  * Registers used:
  * - r0: Temporary register for opcode
- *
- * Notes:
- * - This function writes the opcode for opposite matrix to the FPGA control register.
- * - The function preserves r0 and lr on the stack.
  *
  * Example:
  *   Call the function directly:

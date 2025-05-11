@@ -1,12 +1,9 @@
 /*
  * laplace.s - Matrix operations library module
  *
- * Provides matrix addition, subtraction, and determinant calculation for use by other programs.
+ * Provides access to Matrix Operations to be used with the Laplace-MPU.
  *
  * Usage:
- *   .extern mpu_add
- *   .extern mpu_sub
- *   .extern mpu_determinant
  *   (link this file with your main program)
  */
 

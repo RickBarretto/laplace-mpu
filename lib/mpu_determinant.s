@@ -8,11 +8,6 @@
  * - r0: Matrix size (input), also used for return value (0=success, 1=error)
  * - r3: Temporary register
  *
- * Notes:
- * - Writes the matrix size to the MPU.
- * - Uses the mpu_call and mpu_await helpers to trigger the determinant operation.
- * - Preserves r3 and lr on the stack.
- *
  * Example:
  *   mov r0, #3             @ Matrix size 3x3
  *   bl mpu_determinant     @ Call function

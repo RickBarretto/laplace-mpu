@@ -12,11 +12,6 @@
  * - r5: Local copy of HPS address pointer
  * - r6: Local copy of matrix size counter
  *
- * Notes:
- * - The function uses a loop to copy each byte from the selected FPGA matrix to the HPS matrix.
- * - The function preserves r4, r5, r6, and lr on the stack.
- * - The function returns when all elements have been copied.
- *
  * Example:
  *   Set up the registers before calling:
  *   ```

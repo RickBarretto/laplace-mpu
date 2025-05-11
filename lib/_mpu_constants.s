@@ -19,18 +19,3 @@
 .equ OP_DET,  5                @ Opcode for determinant
 .equ OP_MUL,  6                @ Opcode for multiplication
 .equ OP_NOP,  7                @ No-Operation
-
-@ Macro: MPU_TRIGGER_OP
-@ Usage: MPU_TRIGGER_OP opcode_reg
-@ Sets MPU_AWAIT to 1, writes opcode, waits for MPU_AWAIT to become 0
-.macro MPU_TRIGGER_OP opcode_reg:req
-    ldr r3, =MPU_AWAIT
-    mov r2, #1
-    str r2, [r3]
-    ldr r1, =MPU_OPCODE
-    str \opcode_reg, [r1]
-1:  ldr r3, =MPU_AWAIT
-    ldr r2, [r3]
-    cmp r2, #0
-    bne 1b
-.endm

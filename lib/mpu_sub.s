@@ -1,14 +1,10 @@
 /*
  * Function: mpu_sub
  * --------------------
- * Triggers the FPGA to perform a matrix subtraction operation by passing opcode 1.
+ * Triggers the FPGA to perform a matrix subtraction operation.
  *
  * Registers used:
  * - r0: Temporary register for opcode
- *
- * Notes:
- * - This function writes the opcode 1 to the MPU control register to trigger subtraction.
- * - The function preserves r0 and lr on the stack.
  *
  * Example:
  *   Set up the registers before calling:

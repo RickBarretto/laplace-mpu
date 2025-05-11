@@ -1,14 +1,10 @@
 /*
  * Function: mpu_multiply
  * --------------------
- * Triggers the FPGA to perform a matrix multiplication operation by passing the opcode.
+ * Triggers the FPGA to perform a matrix multiplication operation.
  *
  * Registers used:
  * - r0: Temporary register
- *
- * Notes:
- * - This function writes the opcode for matrix multiplication to the control register (MPU_OPCODE).
- * - The function preserves r0 and lr on the stack.
  *
  * Example:
  *   Call the function:

@@ -1,15 +1,14 @@
 /*
  * Function: mpu_mul_by_scalar
  * --------------------
- * Triggers the FPGA to perform a matrix multiplication by scalar operation by passing the opcode and storing the scalar value.
+ * Triggers the FPGA to perform a matrix multiplication by scalar operation.
  *
  * Registers used:
  * - r0: Scalar value (byte to store)
  * - r3: Temporary register
  *
  * Notes:
- * - This function writes the scalar value to the FPGA scalar register (MPU_SCALAR), then writes the opcode for scalar multiplication to the control register (MPU_OPCODE).
- * - The function preserves r3 and lr on the stack.
+ * - This function writes the scalar and then the OPCODE to the registers.
  *
  * Example:
  *   Set up the registers before calling:

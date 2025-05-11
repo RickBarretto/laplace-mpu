@@ -1,13 +1,10 @@
 /*
  * Function: mpu_add
  * --------------------
- * Triggers the FPGA to perform a matrix addition operation by passing opcode 1.
+ * Triggers the FPGA to perform a matrix addition operation.
  *
  * Registers used:
  * - r0: Temporary register for opcode
- *
- * Notes:
- * - This function writes the opcode 1 to the FPGA control register to trigger addition.
  *
  * Example:
  *   Call the function directly:

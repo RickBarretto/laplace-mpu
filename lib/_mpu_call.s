@@ -15,6 +15,7 @@
  *
  * Example:
  *   ``´
+ *   mov r0, _mpu_      @ Set opcode for addition
  *   mov r0, #OP_ADD      @ Set opcode for addition
  *   bl mpu_call          @ Trigger operation and wait for completion
  *   ```
@@ -30,6 +31,10 @@ _mpu_call:
     push {r3, lr}
     
     @ Store Opcode
+
+
+
+
     ldr r3, =MPU_OPCODE
     str r0, [r3]           @ Write opcode
 

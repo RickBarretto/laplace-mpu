@@ -1,46 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>     /* open, close */
-#include <fcntl.h>      /* O_RDWR, O_SYNC */
-#include <sys/mman.h>   /* mmap, munmap */
-#include <time.h>       /* nanosleep */
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <time.h>
+#include <stdint.h>
 
 #define LW_BRIDGE_BASE   0xFF200000u
 #define LW_BRIDGE_SPAN   0x00005000u
 #define PIO_CMD_OFFSET   0x00u
 #define PIO_STAT_OFFSET  0x10u
 
-#define DIM     5
-#define N_BYTES (DIM * DIM)
-#define N_BITS  (N_BYTES * 8u)
+#define DIM              5
+#define N_BYTES          (DIM * DIM)
+#define N_BITS           (N_BYTES * 8u)
 
-/* matrizes estáticas */
-static unsigned char A[N_BYTES] = {
-     1,  2,  3,  4,  5,
-     6,  7,  8,  9, 10,
-    11, 12, 13, 14, 15,
-    16, 17, 18, 19, 20,
-    21, 22, 23, 24, 25
-};
-static unsigned char B[N_BYTES] = {
-    25, 24, 23, 22, 21,
-    20, 19, 18, 17, 16,
-    15, 14, 13, 12, 11,
-    10,  9,  8,  7,  6,
-     5,  4,  3,  2,  1
-};
-static unsigned char R[N_BYTES];
-
-/* delay ≈1µs */
 static void delay_1us(void)
 {
-    struct timespec ts;
-    ts.tv_sec  = 0;
-    ts.tv_nsec = 3000L;
+    struct timespec ts = { .tv_sec = 0, .tv_nsec = 1000L };
     nanosleep(&ts, NULL);
 }
 
-/* abre /dev/mem */
 static int open_dev(void)
 {
     int fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -51,15 +31,9 @@ static int open_dev(void)
     return fd;
 }
 
-/* mapeia lightweight bridge */
 static void *map_hps(int fd)
 {
-    void *base = mmap(NULL,
-                      LW_BRIDGE_SPAN,
-                      PROT_READ | PROT_WRITE,
-                      MAP_SHARED,
-                      fd,
-                      LW_BRIDGE_BASE);
+    void *base = mmap(NULL, LW_BRIDGE_SPAN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, LW_BRIDGE_BASE);
     if (base == MAP_FAILED) {
         perror("mmap");
         close(fd);
@@ -68,7 +42,6 @@ static void *map_hps(int fd)
     return base;
 }
 
-/* desfaz mapeamento */
 static void unmap_hps(void *base)
 {
     if (munmap(base, LW_BRIDGE_SPAN) != 0) {
@@ -79,102 +52,124 @@ static void unmap_hps(void *base)
 
 int main(void)
 {
-    volatile unsigned int *pio_cmd;
-    volatile unsigned int *pio_stat;
-    void    *hps_base;
-    int      fd;
-    unsigned op_code;
-    unsigned base_cmd;
-    unsigned size2_flag;
-    unsigned status;
-    unsigned bit_pos, byte_idx, bit_idx;
-    unsigned i;
+    volatile uint32_t *pio_cmd, *pio_stat;
+    void              *hps_base;
+    int                fd;
+    uint32_t           status, base_cmd, bit_val;
+    uint8_t            A[DIM][DIM], B[DIM][DIM], R[DIM][DIM];
+    unsigned           op_code;
+    unsigned           matrix_size;
+    unsigned           matrix_size_bit;
+    int                row, col;
+    size_t             bit_pos, byte_idx;
+    int                bit_idx;
+    uint32_t           pos;
 
-    /* lê código da operação */
-    printf("Código da operação (0..7): ");
+    // 0) Escolher operação
+    printf("Digite o código da operação (0..7): ");
     if (scanf("%u", &op_code) != 1 || op_code > 7) {
-        fprintf(stderr, "Operação inválida (0..7)\n");
+        fprintf(stderr, "Operação inválida. Deve ser 0..7\n");
         return EXIT_FAILURE;
     }
 
-    /* prepara comando (flag de dimensão sempre 1 para 5×5) */
-    size2_flag = 1u;
-    base_cmd   = (size2_flag << 30) | ((op_code & 0x7u) << 27);
+    // 1) Se determinante, pedir tamanho (2 ou 3)
+    if (op_code == 5) {
+        printf("Digite o tamanho da matriz (2 ou 3): ");
+        if (scanf("%u", &matrix_size) != 1 || (matrix_size != 2 && matrix_size != 3)) {
+            fprintf(stderr, "Tamanho inválido. Deve ser 2 ou 3\n");
+            return EXIT_FAILURE;
+        }
+        matrix_size_bit = (matrix_size == 2) ? 1 : 0;  // 1 para 2x2, 0 para 3x3
+    } else {
+        matrix_size_bit = 0;  // Ignorado em outras operações
+    }
 
-    /* abre e mapeia ponte HPS→FPGA */
+    // 2) Monta comando base
+    base_cmd = ((op_code & 0x7u) << 27);
+    if (op_code == 5) {
+        base_cmd |= (matrix_size_bit << 30);  // Só usa o bit 30
+    }
+
+    // 3) Preencher matrizes A e B
+    for (row = 0; row < DIM; row++) {
+        for (col = 0; col < DIM; col++) {
+            A[row][col] = (uint8_t)(row * DIM + col + 1);
+            B[row][col] = (uint8_t)(DIM * DIM + 1 - A[row][col]);
+            R[row][col] = 0;
+        }
+    }
+
+    // 4) Acesso à FPGA
     fd       = open_dev();
     hps_base = map_hps(fd);
-    pio_cmd  = (volatile unsigned int *)((char *)hps_base + PIO_CMD_OFFSET);
-    pio_stat = (volatile unsigned int *)((char *)hps_base + PIO_STAT_OFFSET);
+    pio_cmd  = (volatile uint32_t *)((char*)hps_base + PIO_CMD_OFFSET);
+    pio_stat = (volatile uint32_t *)((char*)hps_base + PIO_STAT_OFFSET);
 
-    /* IDLE → LOAD_A (pulso inicial) */
+    // 5) Pulso inicial: IDLE → LOAD_A
     *pio_cmd = base_cmd | (1u << 31);
     *pio_cmd = base_cmd;
     delay_1us();
 
-    /* LOAD_A: envia todos os bits de A */
+    // 6) LOAD_A: envia bits da matriz A
     for (bit_pos = 0; bit_pos < N_BITS; bit_pos++) {
         byte_idx = bit_pos >> 3;
         bit_idx  = bit_pos & 0x7;
-        status   = (A[byte_idx] >> bit_idx) & 1u;
+        row      = byte_idx / DIM;
+        col      = byte_idx % DIM;
+        bit_val  = (A[row][col] >> bit_idx) & 1u;
 
-        *pio_cmd = base_cmd | (1u << 31) | (bit_pos << 1) | status;
+        *pio_cmd = base_cmd | (1u << 31) | ((uint32_t)bit_pos << 1) | bit_val;
+        delay_1us();
         *pio_cmd = base_cmd;
         delay_1us();
     }
 
-    /* LOAD_B: envia todos os bits de B */
+    // 7) LOAD_B: envia bits da matriz B
     for (bit_pos = 0; bit_pos < N_BITS; bit_pos++) {
         byte_idx = bit_pos >> 3;
         bit_idx  = bit_pos & 0x7;
-        status   = (B[byte_idx] >> bit_idx) & 1u;
+        row      = byte_idx / DIM;
+        col      = byte_idx % DIM;
+        bit_val  = (B[row][col] >> bit_idx) & 1u;
 
-        *pio_cmd = base_cmd | (1u << 31) | (bit_pos << 1) | status;
+        *pio_cmd = base_cmd | (1u << 31) | ((uint32_t)bit_pos << 1) | bit_val;
+        delay_1us();
         *pio_cmd = base_cmd;
         delay_1us();
     }
 
-    /* EXEC_OP → READ_RES (pulso extra) */
+    // 8) EXEC_OP → READ_RES
     *pio_cmd = base_cmd | (1u << 31);
     *pio_cmd = base_cmd;
     delay_1us();
 
-    /* READ_RES: lê N_BYTES e envia ACK */
+    // 9) Leitura do resultado
     for (byte_idx = 0; byte_idx < N_BYTES; byte_idx++) {
         *pio_cmd = base_cmd | (1u << 31);
         *pio_cmd = base_cmd;
         delay_1us();
 
-        status     = *pio_stat;
-        R[byte_idx] = (unsigned char)(status & 0xFFu);
+        status = *pio_stat;
+        pos    = (status >> 26) & 0x1Fu;
+        row    = pos / DIM;
+        col    = pos % DIM;
+        R[row][col] = (uint8_t)(status & 0xFFu);
 
         *pio_cmd = base_cmd | (1u << 26);
         *pio_cmd = base_cmd;
         delay_1us();
     }
 
-    /* imprime A */
-    printf("\nMatriz A (%u×%u):\n", DIM, DIM);
-    for (i = 0; i < N_BYTES; i++) {
-        printf("%4u", A[i]);
-        if ((i + 1) % DIM == 0) putchar('\n');
+    // 10) Exibir resultado
+    printf("\nResultado (op_code=%u):\n", op_code);
+    for (row = 0; row < DIM; row++) {
+        for (col = 0; col < DIM; col++) {
+            printf("%4u", R[row][col]);
+        }
+        putchar('\n');
     }
 
-    /* imprime B */
-    printf("\nMatriz B (%u×%u):\n", DIM, DIM);
-    for (i = 0; i < N_BYTES; i++) {
-        printf("%4u", B[i]);
-        if ((i + 1) % DIM == 0) putchar('\n');
-    }
-
-    /* imprime resultado */
-    printf("\nResultado (op_code=%u, dim=%u):\n", op_code, DIM);
-    for (i = 0; i < N_BYTES; i++) {
-        printf("%4u", R[i]);
-        if ((i + 1) % DIM == 0) putchar('\n');
-    }
-
-    /* cleanup */
+    // 11) Finalização
     unmap_hps(hps_base);
     close(fd);
     return EXIT_SUCCESS;
